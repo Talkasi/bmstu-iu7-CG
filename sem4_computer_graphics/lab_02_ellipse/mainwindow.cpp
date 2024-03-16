@@ -7,6 +7,7 @@
 #include <cstring>
 
 #define EPS 1e-6
+#define MAX_HISTORY_N 10
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -20,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     DoubleValidator->setLocale(locale_double);
 
     QValidator *IntValidator = new QIntValidator;
+    IntValidator->setLocale(locale_double);
 
     ui->InputFieldRotationAngle->setValidator(DoubleValidator);
     ui->InputFieldRotationRx->setValidator(IntValidator);
@@ -78,8 +80,8 @@ void ComputeEllipsePoints(QVector<QPointF> &EllipseArr, const Ellipse &e, QGraph
 void MainWindow::CalcDefaultFigurePoints(QGraphicsScene *Scene)
 {
     Figure DefaultFigure = {};
-    qreal SideLength = 300;
-    qreal EllipseWidth = 50;
+    qreal SideLength = 150;
+    qreal EllipseWidth = 30;
     qreal EllipseHeight = qSqrt(qPow(SideLength, 2) + qPow(SideLength / 2, 2));
 
     qreal wHalf = Scene->width() / 2 - SideLength / 2;
@@ -175,11 +177,10 @@ void MainWindow::DrawFigure(const Figure &Figure, QGraphicsScene *Scene, QPen &P
         if (Figure.MainPoints[i].y() > y_bottom)
             y_bottom = Figure.MainPoints[i].y();
     }
-
-    ui->LabelCenterScene->setText(QString("Центр сцены находится на координатах (%1,%2), ").arg(\
+    ui->LabelCenterScene->setText(QString("Центр сцены находится на координатах (%1,%2);\n").arg(\
                                           QString::number(qRound(Scene->width() / 2)),
                                           QString::number(qRound(Scene->height() / 2))) +
-                                  QString("центр фигуры — на координатах (%1,%2).").arg(\
+                                  QString("Центр фигуры — на координатах (%1,%2).").arg(\
                                           QString::number(qRound(x_left + (x_right - x_left) / 2)),
                                           QString::number(qRound(y_top + (y_bottom - y_top) / 2))));
 }
@@ -338,8 +339,8 @@ void RotateEllipse(QVector<QPointF> &EllipseArr, int xc, int yc, qreal t)
         qreal x = EllipseArr.at(i).x();
         qreal y = EllipseArr.at(i).y();
 
-        qreal NewX = xc + (x - xc) * qCos(t) - (y - yc) * qSin(t);
-        qreal NewY = yc + (y - yc) * qCos(t) + (x - xc) * qSin(t);
+        qreal NewX = xc + (x - xc) * qCos(t) + (y - yc) * qSin(t);
+        qreal NewY = yc + (y - yc) * qCos(t) - (x - xc) * qSin(t);
 
         EllipseArr.replace(i, {NewX, NewY});
     }
@@ -376,14 +377,15 @@ void MainWindow::on_ButtonRotation_clicked()
 
     if (qFabs(t) > EPS) {
         FigureHistory.resize(CurrentFHIndex + 1);
+
         Figure CurrentFigure = FigureHistory.last();
 
         for (int i = 0; i < N_MAIN_POINTS; ++i) {
             qreal x = CurrentFigure.MainPoints[i].x();
             qreal y = CurrentFigure.MainPoints[i].y();
 
-            qreal NewX = xc + (x - xc) * qCos(t) - (y - yc) * qSin(t);
-            qreal NewY = yc + (y - yc) * qCos(t) + (x - xc) * qSin(t);
+            qreal NewX = xc + (x - xc) * qCos(t) + (y - yc) * qSin(t);
+            qreal NewY = yc + (y - yc) * qCos(t) - (x - xc) * qSin(t);
 
             CurrentFigure.MainPoints[i].setX(NewX);
             CurrentFigure.MainPoints[i].setY(NewY);
