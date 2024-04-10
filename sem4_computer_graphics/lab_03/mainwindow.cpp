@@ -230,18 +230,15 @@ void MainWindow::on_DrawLineButton_clicked()
     } break;
     case BRESENHAM_D:
     {
-        QLine line = round_line(linef);
-        draw_line_bresenham_d(painter, line.p1(), line.p2(), DRAW);
+        draw_line_bresenham_d(painter, linef.p1(), linef.p2(), DRAW);
     } break;
     case BRESENHAM_I:
     {
-        QLine line = round_line(linef);
-        draw_line_bresenham_i(painter, line.p1(), line.p2(), DRAW);
+        draw_line_bresenham_i(painter, linef.p1(), linef.p2(), DRAW);
     } break;
     case BRESENHAM_ANTIALIASING:
     {
-        QLine line = round_line(linef);
-        draw_line_bresenham_antialiasing(painter, line.p1(), line.p2(), DRAW);
+        draw_line_bresenham_antialiasing(painter, linef.p1(), linef.p2(), DRAW);
     } break;
     case WU:
     {
@@ -395,34 +392,27 @@ void MainWindow::on_CompareTimeButton_clicked()
         return;
     }
 
-
-    QPointF Start = {0, 0};
-    QPointF End = {0, line_length};
-
     unsigned long long start_time;
     unsigned long long times[N_ALGORITHMS] = {};
     qreal avg_times[N_ALGORITHMS] = {};
 
-    QPoint StartI = {qRound(Start.x()), qRound(Start.y())};
-    QPoint EndI = {qRound(End.x()), qRound(End.y())};
+    QPointF Start = {0, 0};
+    QPointF End = {0, line_length};
     for (int i = 0; i < N_TESTS; ++i) {
         start_time = current_time();
-        draw_line_bresenham_antialiasing(painter, StartI, EndI, TIME);
+        draw_line_bresenham_antialiasing(painter, Start, End, TIME);
         times[BRESENHAM_ANTIALIASING] += current_time() - start_time;
 
         start_time = current_time();
         draw_line_dda(painter, Start, End, TIME);
         times[DDA] += current_time() - start_time;
 
-        EndI.setX(qRound(End.x()));
-        EndI.setY(qRound(End.y()));
-
         start_time = current_time();
-        draw_line_bresenham_d(painter, StartI, EndI, TIME);
+        draw_line_bresenham_d(painter, Start, End, TIME);
         times[BRESENHAM_D] += current_time() - start_time;
 
         start_time = current_time();
-        draw_line_bresenham_i(painter, StartI, EndI, TIME);
+        draw_line_bresenham_i(painter, Start, End, TIME);
         times[BRESENHAM_I] += current_time() - start_time;
 
 
@@ -566,21 +556,13 @@ void MainWindow::on_CompareStearsButton_clicked()
     QPointF Start = {0, 0};
     QPointF End = {0, line_length};
 
-    QPoint StartI = {qRound(Start.x()), qRound(Start.y())};
-    QPoint EndI;
-
     int n_steps = qFloor(90 / angle);
     for(int i = 0; i <= n_steps; i += 1)
     {
-        EndI.setX(qRound(End.x()));
-        EndI.setY(qRound(End.y()));
-
-        qDebug() << Start << End;
-
         dda_series->append(i, draw_line_dda(painter, Start, End, STAIRS));
-        bresenham_d_series->append(i, draw_line_bresenham_d(painter, StartI, EndI, STAIRS));
-        bresenham_i_series->append(i, draw_line_bresenham_i(painter, StartI, EndI, STAIRS));
-        bresenham_antialiasing_series->append(i, draw_line_bresenham_antialiasing(painter, StartI, EndI, STAIRS));
+        bresenham_d_series->append(i, draw_line_bresenham_d(painter, Start, End, STAIRS));
+        bresenham_i_series->append(i, draw_line_bresenham_i(painter, Start, End, STAIRS));
+        bresenham_antialiasing_series->append(i, draw_line_bresenham_antialiasing(painter, Start, End, STAIRS));
         wu_series->append(i, draw_line_Wu(painter, Start, End, STAIRS));
 
         rotate_point(End, Start, angle * M_PI / 180);

@@ -11,9 +11,9 @@ typedef enum {
 
 int draw_line_lib(QPainter &painter, QPointF Start, QPointF End, alg_mode mode);
 int draw_line_dda(QPainter &painter, QPointF Start, QPointF End, alg_mode mode);
-int draw_line_bresenham_i(QPainter &painter, QPoint Start, QPoint End, alg_mode mode);
-int draw_line_bresenham_d(QPainter &painter, QPoint Start, QPoint End, alg_mode mode);
-int draw_line_bresenham_antialiasing(QPainter &painter, QPoint Start, QPoint End, alg_mode mode);
+int draw_line_bresenham_i(QPainter &painter, QPointF Start, QPointF End, alg_mode mode);
+int draw_line_bresenham_d(QPainter &painter, QPointF Start, QPointF End, alg_mode mode);
+int draw_line_bresenham_antialiasing(QPainter &painter, QPointF Start, QPointF End, alg_mode mode);
 int draw_line_Wu(QPainter &painter, QPointF Start, QPointF End, alg_mode mode);
 
 

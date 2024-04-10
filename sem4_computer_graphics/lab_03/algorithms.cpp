@@ -77,12 +77,6 @@ int draw_line_dda(QPainter &painter, QPointF Start, QPointF End, alg_mode mode)
 
     int nSteps = qRound(qMax(qFabs(deltaX), qFabs(deltaY)));
 
-    // qreal deltaX = qRound(End.x()) - qRound(Start.x());
-    // qreal deltaY = qRound(End.y()) - qRound(Start.y());
-
-    // int nSteps = qMax(qFabs(deltaX), qFabs(deltaY));
-
-
     qreal dx = (qreal) deltaX / (qreal) nSteps;
     qreal dy = (qreal) deltaY / (qreal) nSteps;
 
@@ -110,10 +104,10 @@ int draw_line_dda(QPainter &painter, QPointF Start, QPointF End, alg_mode mode)
 }
 
 
-int draw_line_bresenham_i(QPainter &painter, QPoint Start, QPoint End, alg_mode mode)
+int draw_line_bresenham_i(QPainter &painter, QPointF Start, QPointF End, alg_mode mode)
 {
-    int x = Start.x();
-    int y = Start.y();
+    int x = qRound(Start.x());
+    int y = qRound(Start.y());
     if (areEqual(Start, End)) {
         if (mode == DRAW)
             painter.drawPoint(x, y);
@@ -121,8 +115,8 @@ int draw_line_bresenham_i(QPainter &painter, QPoint Start, QPoint End, alg_mode 
         return 1;
     }
 
-    int dx = End.x() - Start.x();
-    int dy = End.y() - Start.y();
+    int dx = qRound(End.x() - Start.x());
+    int dy = qRound(End.y() - Start.y());
 
     int sx = sign(dx);
     int sy = sign(dy);
@@ -175,10 +169,10 @@ int draw_line_bresenham_i(QPainter &painter, QPoint Start, QPoint End, alg_mode 
 }
 
 
-int draw_line_bresenham_d(QPainter &painter, QPoint Start, QPoint End, alg_mode mode)
+int draw_line_bresenham_d(QPainter &painter, QPointF Start, QPointF End, alg_mode mode)
 {
-    int x = Start.x();
-    int y = Start.y();
+    int x = qRound(Start.x());
+    int y = qRound(Start.y());
     if (areEqual(Start, End)) {
         if (mode == DRAW)
             painter.drawPoint(x, y);
@@ -186,30 +180,31 @@ int draw_line_bresenham_d(QPainter &painter, QPoint Start, QPoint End, alg_mode 
         return 1;
     }
 
-    int dx = End.x() - Start.x();
-    int dy = End.y() - Start.y();
+    qreal dx = End.x() - Start.x();
+    qreal dy = End.y() - Start.y();
 
     int sx = sign(dx);
     int sy = sign(dy);
 
-    dx = qAbs(dx);
-    dy = qAbs(dy);
+    dx = qFabs(dx);
+    dy = qFabs(dy);
 
     int exchange = 0;
     if (dy > dx) {
         exchange = 1;
-        int tmp = dx;
+        qreal tmp = dx;
         dx = dy;
         dy = tmp;
     }
 
-    qreal k = (qreal) dy / (qreal)dx;
+    qreal k = dy / dx;
     qreal err = k - 0.5;
 
     int n_stairs = 1;
     int x_prev = x;
     int y_prev = y;
-    for (int i = 0; i <= dx; ++i) {
+    int rounded_dx = qRound(dx);
+    for (int i = 0; i <= rounded_dx; ++i) {
         if (mode == DRAW)
             painter.drawPoint(x, y);
 
@@ -242,10 +237,10 @@ int draw_line_bresenham_d(QPainter &painter, QPoint Start, QPoint End, alg_mode 
 }
 
 
-int draw_line_bresenham_antialiasing(QPainter &painter, QPoint Start, QPoint End, alg_mode mode)
+int draw_line_bresenham_antialiasing(QPainter &painter, QPointF Start, QPointF End, alg_mode mode)
 {
-    int x = Start.x();
-    int y = Start.y();
+    int x = qRound(Start.x());
+    int y = qRound(Start.y());
     if (areEqual(Start, End)) {
         if (mode == DRAW)
             painter.drawPoint(x, y);
@@ -253,24 +248,24 @@ int draw_line_bresenham_antialiasing(QPainter &painter, QPoint Start, QPoint End
         return 1;
     }
 
-    int dx = End.x() - Start.x();
-    int dy = End.y() - Start.y();
+    qreal dx = End.x() - Start.x();
+    qreal dy = End.y() - Start.y();
 
     int sx = sign(dx);
     int sy = sign(dy);
 
-    dx = qAbs(dx);
-    dy = qAbs(dy);
+    dx = qFabs(dx);
+    dy = qFabs(dy);
 
     int exchange = 0;
     if (dy > dx) {
         exchange = 1;
-        int tmp = dx;
+        qreal tmp = dx;
         dx = dy;
         dy = tmp;
     }
 
-    qreal m = (qreal) dy / (qreal) dx;
+    qreal m = dy / dx;
     qreal e = 0.5;
     qreal w = 1.0 - m;
     qreal gradient;
@@ -278,7 +273,8 @@ int draw_line_bresenham_antialiasing(QPainter &painter, QPoint Start, QPoint End
     int n_stairs = 1;
     int x_prev = x;
     int y_prev = y;
-    for (int i = 0; i <= dx; ++i)
+    int rounded_dx = dx;
+    for (int i = 0; i <= rounded_dx; ++i)
     {
         gradient = 255 * e;
         if (mode == DRAW)
@@ -499,22 +495,22 @@ void MainWindow::draw_spectrum(QPainter &painter, qreal line_length, qreal angle
 }
 
 
-void MainWindow::draw_spectrum(QPainter &painter, qreal line_length, qreal angle, int (*alg)(QPainter &, QPoint, QPoint, alg_mode))
-{
-    qreal x_center = pxp.width() / 2;
-    qreal y_center = pxp.height() / 2;
+// void MainWindow::draw_spectrum(QPainter &painter, qreal line_length, qreal angle, int (*alg)(QPainter &, QPoint, QPoint, alg_mode))
+// {
+//     qreal x_center = pxp.width() / 2;
+//     qreal y_center = pxp.height() / 2;
 
-    QPointF StartF = {x_center, y_center};
-    QPointF EndF = {x_center, y_center - line_length};
+//     QPointF StartF = {x_center, y_center};
+//     QPointF EndF = {x_center, y_center - line_length};
 
-    QPoint Start = {qRound(StartF.x()), qRound(StartF.y())};
-    QPoint End = {qRound(EndF.x()), qRound(EndF.y())};
-    int n_steps = qFloor(2 * M_PI / angle);
-    for (int i = 0; i <= n_steps; ++i) {
-        End.setX(qRound(EndF.x()));
-        End.setY(qRound(EndF.y()));
-        alg(painter, Start, End, DRAW);
-        rotate_point(EndF, StartF, angle);
-    }
-}
+//     QPoint Start = {qRound(StartF.x()), qRound(StartF.y())};
+//     QPoint End = {qRound(EndF.x()), qRound(EndF.y())};
+//     int n_steps = qFloor(2 * M_PI / angle);
+//     for (int i = 0; i <= n_steps; ++i) {
+//         End.setX(qRound(EndF.x()));
+//         End.setY(qRound(EndF.y()));
+//         alg(painter, Start, End, DRAW);
+//         rotate_point(EndF, StartF, angle);
+//     }
+// }
 
