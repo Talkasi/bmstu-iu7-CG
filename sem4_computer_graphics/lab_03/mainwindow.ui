@@ -216,20 +216,125 @@ background-color: rgba(0, 19, 43, 100)</string>
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout_5">
-         <item row="4" column="3" rowspan="3">
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
+         <item row="0" column="2">
+          <widget class="QPushButton" name="LineColorButton">
+           <property name="maximumSize">
             <size>
-             <width>30</width>
-             <height>20</height>
+             <width>50</width>
+             <height>25</height>
             </size>
            </property>
-          </spacer>
+           <property name="styleSheet">
+            <string notr="true">border-radius: 12px;
+background-color: black;</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
          </item>
-         <item row="2" column="4" colspan="2">
+         <item row="2" column="0">
+          <widget class="QLabel" name="LabelTriangleX0">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+           </property>
+           <property name="text">
+            <string>x0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="LabelTriangleX1">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+           </property>
+           <property name="text">
+            <string>x1</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="4">
+          <widget class="QLabel" name="LabelTriangleY0">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+           </property>
+           <property name="text">
+            <string>y0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <widget class="QLabel" name="HeaderTriangleLabel">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Noto Sans Ethiopic Medium</family>
+             <pointsize>14</pointsize>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+           </property>
+           <property name="text">
+            <string>Отрезок</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" colspan="2">
+          <widget class="QLineEdit" name="InputFieldLineX0">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border: 1px solid rgba(255, 255, 255, 125);
+background-color: rgba(0, 19, 43, 200);
+border-radius: 3px;
+</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4" colspan="2">
           <widget class="QLabel" name="BackgroundLabel">
            <property name="minimumSize">
             <size>
@@ -257,8 +362,8 @@ background-color: rgba(0, 19, 43, 100)</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1" colspan="2">
-          <widget class="QLineEdit" name="InputFieldLineX0">
+         <item row="2" column="5" colspan="2">
+          <widget class="QLineEdit" name="InputFieldLineY0">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -282,46 +387,20 @@ border-radius: 3px;
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="LabelTriangleX1">
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
-           </property>
-           <property name="text">
-            <string>x1</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="3" colspan="3">
-          <widget class="QSlider" name="PixelLengthSlider">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
-           </property>
+         <item row="2" column="3" rowspan="3">
+          <spacer name="horizontalSpacer_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
-          </widget>
-         </item>
-         <item row="3" column="0" colspan="7">
-          <spacer name="verticalSpacer_6">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>20</width>
+             <width>30</width>
              <height>20</height>
             </size>
            </property>
           </spacer>
          </item>
-         <item row="2" column="6">
+         <item row="0" column="6">
           <widget class="QPushButton" name="BackgroundColorButton">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -349,65 +428,20 @@ border-radius: 3px;
            </property>
           </widget>
          </item>
-         <item row="5" column="5" colspan="2">
-          <widget class="QLineEdit" name="InputFieldLineY1">
-           <property name="minimumSize">
+         <item row="1" column="0" colspan="7">
+          <spacer name="verticalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
             <size>
-             <width>0</width>
-             <height>25</height>
+             <width>20</width>
+             <height>20</height>
             </size>
            </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border: 1px solid rgba(255, 255, 255, 125);
-background-color: rgba(0, 19, 43, 200);
-border-radius: 3px;
-</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
+          </spacer>
          </item>
-         <item row="2" column="2">
-          <widget class="QPushButton" name="LineColorButton">
-           <property name="maximumSize">
-            <size>
-             <width>50</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-radius: 12px;
-background-color: black;</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="4">
-          <widget class="QLabel" name="LabelTriangleY0">
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
-           </property>
-           <property name="text">
-            <string>y0</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1" colspan="2">
+         <item row="3" column="1" colspan="2">
           <widget class="QLineEdit" name="InputFieldLineX1">
            <property name="minimumSize">
             <size>
@@ -432,53 +466,8 @@ border-radius: 3px;
            </property>
           </widget>
          </item>
-         <item row="0" column="0" colspan="3">
-          <widget class="QLabel" name="ChooseNPixelsLabel">
-           <property name="font">
-            <font>
-             <family>Noto Sans Ethiopic Medium</family>
-             <pointsize>14</pointsize>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
-           </property>
-           <property name="text">
-            <string>Пикселей в точке</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" colspan="7">
-          <spacer name="verticalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="LabelTriangleX0">
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
-           </property>
-           <property name="text">
-            <string>x0</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="5" colspan="2">
-          <widget class="QLineEdit" name="InputFieldLineY0">
+         <item row="3" column="5" colspan="2">
+          <widget class="QLineEdit" name="InputFieldLineY1">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -502,28 +491,7 @@ border-radius: 3px;
            </property>
           </widget>
          </item>
-         <item row="0" column="6">
-          <widget class="QLabel" name="NPixelsLabel">
-           <property name="font">
-            <font>
-             <pointsize>14</pointsize>
-            </font>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
-           </property>
-           <property name="text">
-            <string>1</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="4">
+         <item row="3" column="4">
           <widget class="QLabel" name="LabelTriangleY1">
            <property name="maximumSize">
             <size>
@@ -536,34 +504,6 @@ border-radius: 3px;
            </property>
            <property name="text">
             <string>y1</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" colspan="2">
-          <widget class="QLabel" name="HeaderTriangleLabel">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Noto Sans Ethiopic Medium</family>
-             <pointsize>14</pointsize>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
-           </property>
-           <property name="text">
-            <string>Отрезок</string>
            </property>
           </widget>
          </item>
@@ -978,9 +918,18 @@ background-color: rgba(255, 255, 255, 0)
        <number>0</number>
       </property>
       <item row="0" column="0">
-       <widget class="QGraphicsView" name="GraphicsView">
+       <widget class="QLabel" name="picture">
+        <property name="minimumSize">
+         <size>
+          <width>834</width>
+          <height>744</height>
+         </size>
+        </property>
         <property name="styleSheet">
-         <string notr="true">background-color: white; border-radius: 15px;</string>
+         <string notr="true">background-color: white;</string>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>
