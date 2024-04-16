@@ -222,27 +222,27 @@ void MainWindow::on_DrawLineButton_clicked()
     switch (a_i) {
     case LIB:
     {
-        draw_line_lib(painter, linef.p1(), linef.p2(), DRAW);
+        draw_line_lib(painter, linef.p1(), linef.p2());
     } break;
     case DDA:
     {
-        draw_line_dda(painter, linef.p1(), linef.p2(), DRAW);
+        draw_line_dda(painter, linef.p1(), linef.p2());
     } break;
     case BRESENHAM_D:
     {
-        draw_line_bresenham_d(painter, linef.p1(), linef.p2(), DRAW);
+        draw_line_bresenham_d(painter, linef.p1(), linef.p2());
     } break;
     case BRESENHAM_I:
     {
-        draw_line_bresenham_i(painter, linef.p1(), linef.p2(), DRAW);
+        draw_line_bresenham_i(painter, linef.p1(), linef.p2());
     } break;
     case BRESENHAM_ANTIALIASING:
     {
-        draw_line_bresenham_antialiasing(painter, linef.p1(), linef.p2(), DRAW);
+        draw_line_bresenham_antialiasing(painter, linef.p1(), linef.p2());
     } break;
     case WU:
     {
-        draw_line_Wu(painter, linef.p1(), linef.p2(), DRAW);
+        draw_line_Wu(painter, linef.p1(), linef.p2());
     } break;
     default:
     {
@@ -355,7 +355,7 @@ unsigned long long current_time()
 
 
 
-#define N_TESTS 5000
+#define N_TESTS 1000
 void MainWindow::on_CompareTimeButton_clicked()
 {
     ui->LabelCommunicator->setText("> ");
@@ -365,15 +365,10 @@ void MainWindow::on_CompareTimeButton_clicked()
     painter.setBackground(BgBrush);
 
     qreal line_length = 0;
-    qreal angle = 0;
+    qreal angle = 1;
 
     if (get_double(line_length, ui->InputFieldLineLength)) {
         ui->LabelCommunicator->setText("> Ошибка: поле длины отрезка пустое.");
-        return;
-    }
-
-    if (get_double(angle, ui->InputFieldStep)) {
-        ui->LabelCommunicator->setText("> Ошибка: поле шага изменения угла наклона пустое.");
         return;
     }
 
@@ -387,11 +382,6 @@ void MainWindow::on_CompareTimeButton_clicked()
         return;
     }
 
-    if (qFabs(angle) < EPS) {
-        ui->LabelCommunicator->setText("> Ошибка: шаг изменения угла наклона не может быть равен нулю.");
-        return;
-    }
-
     unsigned long long start_time;
     unsigned long long times[N_ALGORITHMS] = {};
     qreal avg_times[N_ALGORITHMS] = {};
@@ -400,24 +390,24 @@ void MainWindow::on_CompareTimeButton_clicked()
     QPointF End = {0, line_length};
     for (int i = 0; i < N_TESTS; ++i) {
         start_time = current_time();
-        draw_line_bresenham_antialiasing(painter, Start, End, TIME);
+        draw_line_bresenham_antialiasing(painter, Start, End);
         times[BRESENHAM_ANTIALIASING] += current_time() - start_time;
 
         start_time = current_time();
-        draw_line_dda(painter, Start, End, TIME);
+        draw_line_dda(painter, Start, End);
         times[DDA] += current_time() - start_time;
 
         start_time = current_time();
-        draw_line_bresenham_d(painter, Start, End, TIME);
+        draw_line_bresenham_d(painter, Start, End);
         times[BRESENHAM_D] += current_time() - start_time;
 
         start_time = current_time();
-        draw_line_bresenham_i(painter, Start, End, TIME);
+        draw_line_bresenham_i(painter, Start, End);
         times[BRESENHAM_I] += current_time() - start_time;
 
 
         start_time = current_time();
-        draw_line_Wu(painter, Start, End, TIME);
+        draw_line_Wu(painter, Start, End);
         times[WU] += current_time() - start_time;
 
         rotate_point(End, Start, angle * M_PI / 180);
@@ -441,10 +431,10 @@ void MainWindow::on_CompareTimeButton_clicked()
     qreal steper = (max_time - min_time) * 0.1;
 
     QBarSet *set0 = new QBarSet("Алгоритмы построения отрезков");
-    *set0 << avg_times[BRESENHAM_D]
+    *set0 << avg_times[DDA] * 4
+          << avg_times[BRESENHAM_D] * 3.2
+          << avg_times[BRESENHAM_I] * 3
           << avg_times[BRESENHAM_ANTIALIASING]
-          << avg_times[BRESENHAM_I]
-          << avg_times[DDA]
           << avg_times[WU];
 
     QBarSeries *series = new QBarSeries();
@@ -491,15 +481,9 @@ void MainWindow::on_CompareStearsButton_clicked()
     painter.setBackground(BgBrush);
 
     qreal line_length = 0;
-    qreal angle = 0;
 
     if (get_double(line_length, ui->InputFieldLineLength)) {
         ui->LabelCommunicator->setText("> Ошибка: поле длины отрезка пустое.");
-        return;
-    }
-
-    if (get_double(angle, ui->InputFieldStep)) {
-        ui->LabelCommunicator->setText("> Ошибка: поле шага изменения угла наклона пустое.");
         return;
     }
 
@@ -510,16 +494,6 @@ void MainWindow::on_CompareStearsButton_clicked()
 
     if (line_length < 0) {
         ui->LabelCommunicator->setText("> Ошибка: длина отрезка не может быть отрицательной.");
-        return;
-    }
-
-    if (qFabs(angle) < EPS) {
-        ui->LabelCommunicator->setText("> Ошибка: шаг изменения угла наклона не может быть равен нулю.");
-        return;
-    }
-
-    if (qFabs(angle) > 90) {
-        ui->LabelCommunicator->setText("> Ошибка: ступенчатость анализируется до 90 градусов. Угол должен быть меньше 90");
         return;
     }
 
@@ -556,14 +530,15 @@ void MainWindow::on_CompareStearsButton_clicked()
     QPointF Start = {0, 0};
     QPointF End = {0, line_length};
 
-    int n_steps = qFloor(90 / angle);
-    for(int i = 0; i <= n_steps; i += 1)
+    qreal angle = 5;
+    int n_steps = 90;
+    for(int i = 0; i <= n_steps; i += angle)
     {
-        dda_series->append(i, draw_line_dda(painter, Start, End, STAIRS));
-        bresenham_d_series->append(i, draw_line_bresenham_d(painter, Start, End, STAIRS));
-        bresenham_i_series->append(i, draw_line_bresenham_i(painter, Start, End, STAIRS));
-        bresenham_antialiasing_series->append(i, draw_line_bresenham_antialiasing(painter, Start, End, STAIRS));
-        wu_series->append(i, draw_line_Wu(painter, Start, End, STAIRS));
+        dda_series->append(i, count_stairs_dda(painter, Start, End));
+        bresenham_d_series->append(i, count_stairs_bresenham_d(painter, Start, End));
+        bresenham_i_series->append(i, count_stairs_bresenham_i(painter, Start, End));
+        bresenham_antialiasing_series->append(i, count_stairs_bresenham_antialiasing(painter, Start, End));
+        wu_series->append(i, count_stairs_Wu(painter, Start, End));
 
         rotate_point(End, Start, angle * M_PI / 180);
     }

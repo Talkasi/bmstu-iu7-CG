@@ -51,8 +51,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    void draw_spectrum(QPainter &painter, qreal line_length, qreal angle, int (*alg)(QPainter &, QPointF, QPointF, alg_mode));
-    void draw_spectrum(QPainter &painter, qreal line_length, qreal angle, int (*alg)(QPainter &, QPoint, QPoint, alg_mode));
+    void draw_spectrum(QPainter &painter, qreal line_length, qreal angle, int (*alg)(QPainter &, QPointF, QPointF));
+    void draw_spectrum(QPainter &painter, qreal line_length, qreal angle, int (*alg)(QPainter &, QPoint, QPoint));
 
 
     QPixmap pxp;
