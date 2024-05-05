@@ -1,20 +1,22 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
 #include <QGraphicsScene>
+#include <QMainWindow>
 
 #define N_MAIN_POINTS 5
 #define N_ELLIPSE_POINTS 3
 
-typedef struct {
+typedef struct
+{
     QPointF MainPoints[N_MAIN_POINTS];
     QPointF EllipsePoints[N_ELLIPSE_POINTS];
 } Figure;
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
+namespace Ui
+{
+    class MainWindow;
 }
 QT_END_NAMESPACE
 

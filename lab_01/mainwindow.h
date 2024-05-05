@@ -6,12 +6,14 @@
 
 #define POINTS_N 3
 
-typedef struct {
+typedef struct
+{
     QPointF Coordinates;
     int n;
 } UsersPoint;
 
-typedef struct {
+typedef struct
+{
     QPointF Center;
     int TriangleLine[2];
     UsersPoint Points[POINTS_N];
@@ -19,8 +21,9 @@ typedef struct {
 } NeededCircleDesc;
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
+namespace Ui
+{
+    class MainWindow;
 }
 QT_END_NAMESPACE
 

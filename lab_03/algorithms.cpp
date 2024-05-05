@@ -1,10 +1,9 @@
-#include "mainwindow.h"
 #include "algorithms.h"
-#include <QtMath>
-#include <QDebug>
+#include "mainwindow.h"
 #include <QColorDialog>
+#include <QDebug>
 #include <QPainterPath>
-
+#include <QtMath>
 
 void draw_pixel(QPainter &painter, int x, int y, qreal alpha)
 {
@@ -14,27 +13,27 @@ void draw_pixel(QPainter &painter, int x, int y, qreal alpha)
     painter.drawPoint(x, y);
 }
 
-
-static int sign(int n) {
+static int sign(int n)
+{
 
     if (n == 0)
         return 0;
     return (n >= 0) ? 1 : -1;
 }
 
-
-static void swapPoints(QPoint &a, QPoint &b) {
+static void swapPoints(QPoint &a, QPoint &b)
+{
     QPoint tmp = a;
     a = b;
     b = tmp;
 }
 
-static void swapPoints(QPointF &a, QPointF &b) {
+static void swapPoints(QPointF &a, QPointF &b)
+{
     QPointF tmp = a;
     a = b;
     b = tmp;
 }
-
 
 static int areEqual(QPointF &A, QPointF &B)
 {
@@ -46,13 +45,11 @@ static int areEqual(QPoint &A, QPoint &B)
     return (A.x() == B.x() && A.y() == B.y());
 }
 
-
 int draw_line_lib(QPainter &painter, QPointF Start, QPointF End)
 {
     painter.drawLine(Start, End);
     return 0;
 }
-
 
 int draw_line_dda(QPainter &painter, QPointF Start, QPointF End)
 {
@@ -69,8 +66,8 @@ int draw_line_dda(QPainter &painter, QPointF Start, QPointF End)
 
     qreal nSteps = qMax(qFabs(deltaX), qFabs(deltaY));
 
-    qreal dx = (qreal) deltaX / (qreal) nSteps;
-    qreal dy = (qreal) deltaY / (qreal) nSteps;
+    qreal dx = (qreal)deltaX / (qreal)nSteps;
+    qreal dy = (qreal)deltaY / (qreal)nSteps;
 
     qreal fx = Start.x();
     qreal fy = Start.y();
@@ -96,8 +93,8 @@ int count_stairs_dda(QPainter &painter, QPointF Start, QPointF End)
 
     qreal nSteps = qMax(qFabs(deltaX), qFabs(deltaY));
 
-    qreal dx = (qreal) deltaX / (qreal) nSteps;
-    qreal dy = (qreal) deltaY / (qreal) nSteps;
+    qreal dx = (qreal)deltaX / (qreal)nSteps;
+    qreal dy = (qreal)deltaY / (qreal)nSteps;
 
     qreal fx = Start.x();
     qreal fy = Start.y();
@@ -163,7 +160,6 @@ int draw_line_bresenham_i(QPainter &painter, QPointF Start, QPointF End)
 
     return 0;
 }
-
 
 int count_stairs_bresenham_i(QPainter &painter, QPointF Start, QPointF End)
 {
@@ -266,7 +262,6 @@ int draw_line_bresenham_d(QPainter &painter, QPointF Start, QPointF End)
     return 0;
 }
 
-
 int count_stairs_bresenham_d(QPainter &painter, QPointF Start, QPointF End)
 {
     int x = qRound(Start.x());
@@ -319,7 +314,6 @@ int count_stairs_bresenham_d(QPainter &painter, QPointF Start, QPointF End)
     return n_stairs;
 }
 
-
 int draw_line_bresenham_antialiasing(QPainter &painter, QPointF Start, QPointF End)
 {
     int x = qRound(Start.x());
@@ -361,7 +355,8 @@ int draw_line_bresenham_antialiasing(QPainter &painter, QPointF Start, QPointF E
                 x += sx;
 
             e += m;
-        } else {
+        }
+        else {
             x += sx;
             y += sy;
             e -= w;
@@ -370,7 +365,6 @@ int draw_line_bresenham_antialiasing(QPainter &painter, QPointF Start, QPointF E
 
     return 0;
 }
-
 
 int count_stairs_bresenham_antialiasing(QPainter &painter, QPointF Start, QPointF End)
 {
@@ -411,7 +405,8 @@ int count_stairs_bresenham_antialiasing(QPainter &painter, QPointF Start, QPoint
                 x += sx;
 
             e += m;
-        } else {
+        }
+        else {
             x += sx;
             y += sy;
             e -= w;
@@ -423,8 +418,8 @@ int count_stairs_bresenham_antialiasing(QPainter &painter, QPointF Start, QPoint
     return n_stairs;
 }
 
-
-static qreal fPart(qreal x) {
+static qreal fPart(qreal x)
+{
     return x - qFloor(x);
 }
 
@@ -467,13 +462,13 @@ int draw_line_Wu(QPainter &painter, QPointF Start, QPointF End)
     int xPxl1 = xEnd;
     int yPxl1 = qFloor(yEnd);
 
-
     qreal first_intencity = 255 * (1 - fPart(yEnd)) * xGap;
     qreal second_intencity = 255 * fPart(yEnd) * xGap;
     if (steep) {
         draw_pixel(painter, yPxl1, xPxl1, first_intencity);
         draw_pixel(painter, yPxl1 + 1, xPxl1, second_intencity);
-    } else {
+    }
+    else {
         draw_pixel(painter, xPxl1, yPxl1, first_intencity);
         draw_pixel(painter, xPxl1, yPxl1 + 1, second_intencity);
     }
@@ -492,7 +487,8 @@ int draw_line_Wu(QPainter &painter, QPointF Start, QPointF End)
     if (steep) {
         draw_pixel(painter, yPxl2, xPxl2, first_intencity);
         draw_pixel(painter, yPxl2 + 1, xPxl2, second_intencity);
-    } else {
+    }
+    else {
         draw_pixel(painter, xPxl2, yPxl2, first_intencity);
         draw_pixel(painter, xPxl2, yPxl2 + 1, second_intencity);
     }
@@ -503,7 +499,8 @@ int draw_line_Wu(QPainter &painter, QPointF Start, QPointF End)
             draw_pixel(painter, qFloor(y) + 1, x, 255 * fPart(y));
             y = y + gradient;
         }
-    } else {
+    }
+    else {
         for (int x = xPxl1 + 1; x <= xPxl2; ++x) {
             draw_pixel(painter, x, qFloor(y), 255 * (1 - fPart(y)));
             draw_pixel(painter, x, qFloor(y) + 1, 255 * fPart(y));
@@ -513,8 +510,6 @@ int draw_line_Wu(QPainter &painter, QPointF Start, QPointF End)
 
     return 0;
 }
-
-
 
 int count_stairs_Wu(QPainter &painter, QPointF Start, QPointF End)
 {
@@ -566,7 +561,8 @@ int count_stairs_Wu(QPainter &painter, QPointF Start, QPointF End)
             prev_first_coord = cur_first_coord1;
             intery = intery + gradient;
         }
-    } else {
+    }
+    else {
         int prev_second_coord = xPxl1 + 1;
         for (int x = xPxl1 + 1; x <= xPxl2; ++x) {
             int cur_second_coord1 = qFloor(intery);
@@ -581,7 +577,6 @@ int count_stairs_Wu(QPainter &painter, QPointF Start, QPointF End)
 
     return n_stairs;
 }
-
 
 void rotate_point(QPointF &point, QPointF &center_point, qreal angle)
 {
@@ -613,8 +608,8 @@ void rotate_point(QPoint &point, QPoint &center_point, qreal angle)
     point.setY(qRound(NewY));
 }
 
-
-void MainWindow::draw_spectrum(QPainter &painter, qreal line_length, qreal angle, int (*alg)(QPainter &, QPointF, QPointF))
+void MainWindow::draw_spectrum(QPainter &painter, qreal line_length, qreal angle,
+                               int (*alg)(QPainter &, QPointF, QPointF))
 {
     qreal x_center = pxp.width() / 2;
     qreal y_center = pxp.height() / 2;
@@ -629,8 +624,8 @@ void MainWindow::draw_spectrum(QPainter &painter, qreal line_length, qreal angle
     }
 }
 
-
-// void MainWindow::draw_spectrum(QPainter &painter, qreal line_length, qreal angle, int (*alg)(QPainter &, QPoint, QPoint, alg_mode))
+// void MainWindow::draw_spectrum(QPainter &painter, qreal line_length, qreal angle, int (*alg)(QPainter &, QPoint,
+// QPoint, alg_mode))
 // {
 //     qreal x_center = pxp.width() / 2;
 //     qreal y_center = pxp.height() / 2;
@@ -648,4 +643,3 @@ void MainWindow::draw_spectrum(QPainter &painter, qreal line_length, qreal angle
 //         rotate_point(EndF, StartF, angle);
 //     }
 // }
-

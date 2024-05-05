@@ -3,17 +3,14 @@
 #include "language.h"
 
 #include <QDoubleValidator>
-#include <QtMath>
 #include <QGraphicsTextItem>
+#include <QtMath>
 
 #define SUCCESS 0
 #define INPUT_ERROR 1
 #define EPS 1e-6
 
-
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -55,8 +52,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-int MainWindow::GetPointFromLineEdits(QPointF *NewPoint) {
+int MainWindow::GetPointFromLineEdits(QPointF *NewPoint)
+{
     bool Validate;
 
     qreal X = ui->InputFieldPointX->text().toDouble(&Validate);
@@ -84,9 +81,8 @@ void MainWindow::on_XlineEditTextChanged(QString String)
 {
     ClearNeeded();
     int row = ui->TablePoints->currentRow();
-    if (row >= 0)
-    {
-        QLineEdit *XEdit = qobject_cast<QLineEdit*>(ui->TablePoints->cellWidget(row, 0));
+    if (row >= 0) {
+        QLineEdit *XEdit = qobject_cast<QLineEdit *>(ui->TablePoints->cellWidget(row, 0));
 
         bool validator;
         String.toDouble(&validator);
@@ -108,9 +104,8 @@ void MainWindow::on_YlineEditTextChanged(QString String)
 {
     ClearNeeded();
     int row = ui->TablePoints->currentRow();
-    if (row >= 0)
-    {
-        QLineEdit *YEdit = qobject_cast<QLineEdit*>(ui->TablePoints->cellWidget(row, 1));
+    if (row >= 0) {
+        QLineEdit *YEdit = qobject_cast<QLineEdit *>(ui->TablePoints->cellWidget(row, 1));
 
         bool validator;
 
@@ -163,9 +158,9 @@ void MainWindow::on_ButtonAddPoint_clicked()
         ui->InputFieldPointX->clear();
         ui->InputFieldPointY->clear();
         ui->InputFieldPointX->setFocus();
-    } else {
-        if (ui->InputFieldPointX->text().length() == 0 ||
-            ui->InputFieldPointY->text().length() == 0)
+    }
+    else {
+        if (ui->InputFieldPointX->text().length() == 0 || ui->InputFieldPointY->text().length() == 0)
             ui->LabelCommunicator->setText(INVALID_POINT_EMPTY_FIELD);
         else
             ui->LabelCommunicator->setText(INVALID_POINT_VALIDATOR_ERR);
@@ -178,7 +173,8 @@ void MainWindow::on_ButtonDeleteAllPoints_clicked()
     ClearNeeded();
     if (ui->TablePoints->rowCount()) {
         ui->TablePoints->setRowCount(0);
-    } else {
+    }
+    else {
         ui->LabelCommunicator->setText(INVALID_TABLE_CLEAR);
     }
 }
@@ -195,31 +191,32 @@ QPointF ComputeCircleCenter(QPointF &A, QPointF &B, QPointF &C)
     CircleCenter.setX(((qPow(A.x(), 2) + qPow(A.y(), 2)) * (B.y() - C.y()) +
                        (qPow(B.x(), 2) + qPow(B.y(), 2)) * (C.y() - A.y()) +
                        (qPow(C.x(), 2) + qPow(C.y(), 2)) * (A.y() - B.y())) /
-                       (2 * (A.x() * (B.y() - C.y()) + B.x() * (C.y() - A.y()) + C.x() * (A.y() - B.y()))));
+                      (2 * (A.x() * (B.y() - C.y()) + B.x() * (C.y() - A.y()) + C.x() * (A.y() - B.y()))));
     CircleCenter.setY(((qPow(A.x(), 2) + qPow(A.y(), 2)) * (C.x() - B.x()) +
                        (qPow(B.x(), 2) + qPow(B.y(), 2)) * (A.x() - C.x()) +
                        (qPow(C.x(), 2) + qPow(C.y(), 2)) * (B.x() - A.x())) /
-                       (2 * (A.x() * (B.y() - C.y()) + B.x() * (C.y() - A.y()) + C.x() * (A.y() - B.y()))));
+                      (2 * (A.x() * (B.y() - C.y()) + B.x() * (C.y() - A.y()) + C.x() * (A.y() - B.y()))));
     return CircleCenter;
 }
 
 bool PointsAreOnTheSameLine(QPointF &A, QPointF &B, QPointF &C)
 {
-    return qFabs(A.x() * (B.y() - C.y()) +
-                 B.x() * (C.y() - A.y()) +
-                 C.x() * (A.y() - B.y())) < EPS;
+    return qFabs(A.x() * (B.y() - C.y()) + B.x() * (C.y() - A.y()) + C.x() * (A.y() - B.y())) < EPS;
 }
 
-qreal ComputeRadius(NeededCircleDesc &Circle) {
+qreal ComputeRadius(NeededCircleDesc &Circle)
+{
     return qSqrt(qPow(Circle.Points[0].Coordinates.x() - Circle.Center.x(), 2) +
                  qPow(Circle.Points[0].Coordinates.y() - Circle.Center.y(), 2));
 }
 
-bool PointsAreEqual(QPointF A, QPointF B) {
+bool PointsAreEqual(QPointF A, QPointF B)
+{
     return ((qFabs(A.x() - B.x()) < EPS) && (qFabs(A.y() - B.y()) < EPS));
 }
 
-void MainWindow::DrawAnswer(QPointF *Triangle, NeededCircleDesc &Circle) {
+void MainWindow::DrawAnswer(QPointF *Triangle, NeededCircleDesc &Circle)
+{
     delete ui->GraphicsView->scene();
     QGraphicsScene *Scene = new QGraphicsScene();
 
@@ -261,14 +258,14 @@ void MainWindow::DrawAnswer(QPointF *Triangle, NeededCircleDesc &Circle) {
     if (x_left > Circle.Center.x() - CircleRadius)
         x_left = Circle.Center.x() - CircleRadius;
 
-
     qreal ky = SceneRect.height() / (y_top - y_bottom);
     qreal kx = SceneRect.width() / (x_right - x_left);
 
     if (kx > ky) {
         kx = ky;
         ky = -ky;
-    } else {
+    }
+    else {
         ky = -kx;
         kx = kx;
     }
@@ -277,19 +274,16 @@ void MainWindow::DrawAnswer(QPointF *Triangle, NeededCircleDesc &Circle) {
                                         {Triangle[1].x() * kx, Triangle[1].y() * ky},
                                         {Triangle[2].x() * kx, Triangle[2].y() * ky}};
 
-    NeededCircleDesc CircleScaled = {{Circle.Center.x() * kx, Circle.Center.y() * ky},
+    NeededCircleDesc CircleScaled = {
+        {Circle.Center.x() * kx, Circle.Center.y() * ky},
 
-                                     {Circle.TriangleLine[0],
-                                      Circle.TriangleLine[1]},
+        {Circle.TriangleLine[0], Circle.TriangleLine[1]},
 
-                                    {{{Circle.Points[0].Coordinates.x() * kx,
-                                       Circle.Points[0].Coordinates.y() * ky}, Circle.Points[0].n},
-                                     {{Circle.Points[1].Coordinates.x() * kx,
-                                       Circle.Points[1].Coordinates.y() * ky}, Circle.Points[1].n},
-                                     {{Circle.Points[2].Coordinates.x() * kx,
-                                       Circle.Points[2].Coordinates.y() * ky}, Circle.Points[2].n}},
+        {{{Circle.Points[0].Coordinates.x() * kx, Circle.Points[0].Coordinates.y() * ky}, Circle.Points[0].n},
+         {{Circle.Points[1].Coordinates.x() * kx, Circle.Points[1].Coordinates.y() * ky}, Circle.Points[1].n},
+         {{Circle.Points[2].Coordinates.x() * kx, Circle.Points[2].Coordinates.y() * ky}, Circle.Points[2].n}},
 
-                                    Circle.AngleOY};
+        Circle.AngleOY};
 
     QPen TrianglePen(Qt::darkGreen, 5);
     QPen CirclePen(Qt::darkRed, 5);
@@ -297,83 +291,76 @@ void MainWindow::DrawAnswer(QPointF *Triangle, NeededCircleDesc &Circle) {
     QPen LinePen(Qt::yellow, 3, Qt::DashDotLine);
 
     // Triangle lines
-    Scene->addLine(QLineF(TriangleScaled[0].x(), TriangleScaled[0].y(),
-                          TriangleScaled[1].x(), TriangleScaled[1].y()), TrianglePen);
-    Scene->addLine(QLineF(TriangleScaled[1].x(), TriangleScaled[1].y(),
-                          TriangleScaled[2].x(), TriangleScaled[2].y()), TrianglePen);
-    Scene->addLine(QLineF(TriangleScaled[0].x(), TriangleScaled[0].y(),
-                          TriangleScaled[2].x(), TriangleScaled[2].y()), TrianglePen);
+    Scene->addLine(QLineF(TriangleScaled[0].x(), TriangleScaled[0].y(), TriangleScaled[1].x(), TriangleScaled[1].y()),
+                   TrianglePen);
+    Scene->addLine(QLineF(TriangleScaled[1].x(), TriangleScaled[1].y(), TriangleScaled[2].x(), TriangleScaled[2].y()),
+                   TrianglePen);
+    Scene->addLine(QLineF(TriangleScaled[0].x(), TriangleScaled[0].y(), TriangleScaled[2].x(), TriangleScaled[2].y()),
+                   TrianglePen);
 
     // Triangle points
     QGraphicsTextItem *text;
-    text = Scene->addText(QString("A (%1,%2)").arg(QString::number(Triangle[0].x()),
-                                                   QString::number(Triangle[0].y())));
+    text = Scene->addText(QString("A (%1,%2)").arg(QString::number(Triangle[0].x()), QString::number(Triangle[0].y())));
     text->setDefaultTextColor(Qt::black);
     text->setPos(TriangleScaled[0].x(), TriangleScaled[0].y());
 
-    text = Scene->addText(QString("B (%1,%2)").arg(QString::number(Triangle[1].x()),
-                                                   QString::number(Triangle[1].y())), QFont());
+    text = Scene->addText(QString("B (%1,%2)").arg(QString::number(Triangle[1].x()), QString::number(Triangle[1].y())),
+                          QFont());
     text->setDefaultTextColor(Qt::black);
     text->setPos(TriangleScaled[1].x(), TriangleScaled[1].y());
 
-    text = Scene->addText(QString("C (%1,%2)").arg(QString::number(Triangle[2].x()),
-                                                   QString::number(Triangle[2].y())));
+    text = Scene->addText(QString("C (%1,%2)").arg(QString::number(Triangle[2].x()), QString::number(Triangle[2].y())));
     text->setDefaultTextColor(Qt::black);
     text->setPos(TriangleScaled[2].x(), TriangleScaled[2].y());
 
     // Circle
     qreal CircleScaledRadius = ComputeRadius(CircleScaled);
-    Scene->addEllipse(CircleScaled.Center.x() - CircleScaledRadius,
-                      CircleScaled.Center.y() - CircleScaledRadius,
+    Scene->addEllipse(CircleScaled.Center.x() - CircleScaledRadius, CircleScaled.Center.y() - CircleScaledRadius,
                       CircleScaledRadius * 2, CircleScaledRadius * 2, CirclePen);
 
     // Circle points
-    text = Scene->addText(QString("%1 (%2,%3)").arg(QString::number(Circle.Points[0].n),
-                                                    QString::number(Circle.Points[0].Coordinates.x()),
-                                                    QString::number(Circle.Points[0].Coordinates.y())));
+    text =
+        Scene->addText(QString("%1 (%2,%3)")
+                           .arg(QString::number(Circle.Points[0].n), QString::number(Circle.Points[0].Coordinates.x()),
+                                QString::number(Circle.Points[0].Coordinates.y())));
     text->setDefaultTextColor(Qt::black);
     text->setPos(CircleScaled.Points[0].Coordinates.x(), CircleScaled.Points[0].Coordinates.y());
     Scene->addEllipse(CircleScaled.Points[0].Coordinates.x() - dotRadius,
-                      CircleScaled.Points[0].Coordinates.y() - dotRadius,
-                      dotRadius * 2, dotRadius * 2, DotPen);
+                      CircleScaled.Points[0].Coordinates.y() - dotRadius, dotRadius * 2, dotRadius * 2, DotPen);
 
-    text = Scene->addText(QString("%1 (%2,%3)").arg(QString::number(Circle.Points[1].n),
-                                                    QString::number(Circle.Points[1].Coordinates.x()),
-                                                    QString::number(Circle.Points[1].Coordinates.y())));
+    text =
+        Scene->addText(QString("%1 (%2,%3)")
+                           .arg(QString::number(Circle.Points[1].n), QString::number(Circle.Points[1].Coordinates.x()),
+                                QString::number(Circle.Points[1].Coordinates.y())));
     text->setDefaultTextColor(Qt::black);
     text->setPos(CircleScaled.Points[1].Coordinates.x(), CircleScaled.Points[1].Coordinates.y());
     Scene->addEllipse(CircleScaled.Points[1].Coordinates.x() - dotRadius,
-                      CircleScaled.Points[1].Coordinates.y() - dotRadius,
-                      dotRadius * 2, dotRadius * 2, DotPen);
+                      CircleScaled.Points[1].Coordinates.y() - dotRadius, dotRadius * 2, dotRadius * 2, DotPen);
 
-    text = Scene->addText(QString("%1 (%2,%3)").arg(QString::number(Circle.Points[2].n),
-                                                    QString::number(Circle.Points[2].Coordinates.x()),
-                                                    QString::number(Circle.Points[2].Coordinates.y())));
+    text =
+        Scene->addText(QString("%1 (%2,%3)")
+                           .arg(QString::number(Circle.Points[2].n), QString::number(Circle.Points[2].Coordinates.x()),
+                                QString::number(Circle.Points[2].Coordinates.y())));
     text->setDefaultTextColor(Qt::black);
     text->setPos(CircleScaled.Points[2].Coordinates.x(), CircleScaled.Points[2].Coordinates.y());
     Scene->addEllipse(CircleScaled.Points[2].Coordinates.x() - dotRadius,
-                      CircleScaled.Points[2].Coordinates.y() - dotRadius,
-                      dotRadius * 2, dotRadius * 2, DotPen);
+                      CircleScaled.Points[2].Coordinates.y() - dotRadius, dotRadius * 2, dotRadius * 2, DotPen);
 
     // Needed line
-    text = Scene->addText(QString("O (%1,%2)").arg(QString::number(Circle.Center.x()),
-                                                 QString::number(Circle.Center.y())));
+    text = Scene->addText(
+        QString("O (%1,%2)").arg(QString::number(Circle.Center.x()), QString::number(Circle.Center.y())));
     text->setDefaultTextColor(Qt::black);
     text->setPos(CircleScaled.Center.x(), CircleScaled.Center.y());
-    Scene->addEllipse(CircleScaled.Center.x() - dotRadius,
-                      CircleScaled.Center.y() - dotRadius,
-                      dotRadius * 2, dotRadius * 2, DotPen);
+    Scene->addEllipse(CircleScaled.Center.x() - dotRadius, CircleScaled.Center.y() - dotRadius, dotRadius * 2,
+                      dotRadius * 2, DotPen);
 
     QPointF TrianglePointNeeded = TriangleScaled[CircleScaled.TriangleLine[0]];
     if (PointsAreEqual(CircleScaled.Center, TrianglePointNeeded))
         TrianglePointNeeded = TriangleScaled[CircleScaled.TriangleLine[1]];
 
-    Scene->addLine(QLineF(CircleScaled.Center.x(),
-                          CircleScaled.Center.y(),
-                          TrianglePointNeeded.x(),
-                          TrianglePointNeeded.y()),
-                   LinePen);
-
+    Scene->addLine(
+        QLineF(CircleScaled.Center.x(), CircleScaled.Center.y(), TrianglePointNeeded.x(), TrianglePointNeeded.y()),
+        LinePen);
 
     ui->GraphicsView->setScene(Scene);
 }
@@ -381,11 +368,12 @@ void MainWindow::DrawAnswer(QPointF *Triangle, NeededCircleDesc &Circle) {
 int MainWindow::GetAndCheckPointsInput(QVector<UsersPoint> *PointsVector)
 {
     for (int row = 0; row < ui->TablePoints->rowCount(); ++row) {
-        QLineEdit *XEdit = qobject_cast<QLineEdit*>(ui->TablePoints->cellWidget(row, 0));
-        QLineEdit *YEdit = qobject_cast<QLineEdit*>(ui->TablePoints->cellWidget(row, 1));
+        QLineEdit *XEdit = qobject_cast<QLineEdit *>(ui->TablePoints->cellWidget(row, 0));
+        QLineEdit *YEdit = qobject_cast<QLineEdit *>(ui->TablePoints->cellWidget(row, 1));
 
         if (XEdit->text().length() == 0 || YEdit->text().length() == 0) {
-            ui->LabelCommunicator->setText(INVAILID_NTH_POINT_EMPTY_START + QString::number(row + 1) + INVAILID_NTH_POINT_EMPTY_END);
+            ui->LabelCommunicator->setText(INVAILID_NTH_POINT_EMPTY_START + QString::number(row + 1) +
+                                           INVAILID_NTH_POINT_EMPTY_END);
             return INPUT_ERROR;
         }
 
@@ -395,7 +383,8 @@ int MainWindow::GetAndCheckPointsInput(QVector<UsersPoint> *PointsVector)
         qreal Y = YEdit->text().toDouble(&validatorY);
 
         if (validatorX == false || validatorY == false) {
-            ui->LabelCommunicator->setText(INVAILID_NTH_POINT_VALID_START + QString::number(row + 1) + INVAILID_NTH_POINT_VALID_END);
+            ui->LabelCommunicator->setText(INVAILID_NTH_POINT_VALID_START + QString::number(row + 1) +
+                                           INVAILID_NTH_POINT_VALID_END);
             return INPUT_ERROR;
         }
 
@@ -412,20 +401,17 @@ int MainWindow::GetAndCheckPointsInput(QVector<UsersPoint> *PointsVector)
 
 int MainWindow::GetAndCheckTriangleInput(QPointF *Triangle)
 {
-    if (ui->InputFieldTriangleX0->text().length() == 0 ||
-        ui->InputFieldTriangleY0->text().length() == 0) {
+    if (ui->InputFieldTriangleX0->text().length() == 0 || ui->InputFieldTriangleY0->text().length() == 0) {
         ui->LabelCommunicator->setText(INVALID_TRIANGLE_EMPTY_FIELD_START "A" INVALID_TRIANGLE_EMPTY_FIELD_END);
         return INPUT_ERROR;
     }
 
-    if (ui->InputFieldTriangleX1->text().length() == 0 ||
-        ui->InputFieldTriangleY1->text().length() == 0) {
+    if (ui->InputFieldTriangleX1->text().length() == 0 || ui->InputFieldTriangleY1->text().length() == 0) {
         ui->LabelCommunicator->setText(INVALID_TRIANGLE_EMPTY_FIELD_START "B" INVALID_TRIANGLE_EMPTY_FIELD_END);
         return INPUT_ERROR;
     }
 
-    if (ui->InputFieldTriangleX2->text().length() == 0 ||
-        ui->InputFieldTriangleY2->text().length() == 0) {
+    if (ui->InputFieldTriangleX2->text().length() == 0 || ui->InputFieldTriangleY2->text().length() == 0) {
         ui->LabelCommunicator->setText(INVALID_TRIANGLE_EMPTY_FIELD_START "C" INVALID_TRIANGLE_EMPTY_FIELD_END);
         return INPUT_ERROR;
     }
@@ -467,7 +453,8 @@ int MainWindow::GetAndCheckTriangleInput(QPointF *Triangle)
     return SUCCESS;
 }
 
-qreal ComputeAngleWithOY(QPointF &A, QPointF &B) {
+qreal ComputeAngleWithOY(QPointF &A, QPointF &B)
+{
     qreal x1;
     qreal y1;
     if (qFabs(A.x() - B.x()) < EPS) {
@@ -477,10 +464,12 @@ qreal ComputeAngleWithOY(QPointF &A, QPointF &B) {
             y1 = B.y() - A.y();
 
         x1 = 0;
-    } else if (A.x() - B.x() > EPS) {
+    }
+    else if (A.x() - B.x() > EPS) {
         y1 = A.y() - B.y();
         x1 = A.x() - B.x();
-    } else {
+    }
+    else {
         y1 = B.y() - A.y();
         x1 = B.x() - A.x();
     }
@@ -512,12 +501,11 @@ void MainWindow::on_ButtonCompute_clicked()
                 NewCircleDesc.Points[1] = PointsVector.at(j);
                 NewCircleDesc.Points[2] = PointsVector.at(k);
 
-                if (!PointsAreOnTheSameLine(NewCircleDesc.Points[0].Coordinates,
-                                            NewCircleDesc.Points[1].Coordinates,
+                if (!PointsAreOnTheSameLine(NewCircleDesc.Points[0].Coordinates, NewCircleDesc.Points[1].Coordinates,
                                             NewCircleDesc.Points[2].Coordinates)) {
-                    NewCircleDesc.Center = ComputeCircleCenter(NewCircleDesc.Points[0].Coordinates,
-                                                               NewCircleDesc.Points[1].Coordinates,
-                                                               NewCircleDesc.Points[2].Coordinates);
+                    NewCircleDesc.Center =
+                        ComputeCircleCenter(NewCircleDesc.Points[0].Coordinates, NewCircleDesc.Points[1].Coordinates,
+                                            NewCircleDesc.Points[2].Coordinates);
 
                     for (int tr_i = 0; tr_i < POINTS_N - 1; ++tr_i) {
                         for (int tr_j = tr_i + 1; tr_j < POINTS_N; ++tr_j) {
@@ -550,31 +538,33 @@ void MainWindow::on_ButtonCompute_clicked()
             }
         }
 
-        ui->LabelCommunicator->setText("Cреди всех найденных окружностей, которые могут быть построены хотя бы на трех данных точках "
-                                       " и центр каждой из которых лежит на прямой, проходящей через сторону данного треугольника, была выбрана та,"
-                                       " у которой угол между вышеуказанной прямой и осью Oy минимален."
-                                       " Она построена по точкам " +
-                                       QString("%1 (%2,%3), ").arg(QString::number(ResultCircleCenterDesc.Points[0].n),
-                                                                   QString::number(ResultCircleCenterDesc.Points[0].Coordinates.x()),
-                                                                   QString::number(ResultCircleCenterDesc.Points[0].Coordinates.y())) +
-                                       QString("%1 (%2,%3), ").arg(QString::number(ResultCircleCenterDesc.Points[1].n),
-                                                                   QString::number(ResultCircleCenterDesc.Points[1].Coordinates.x()),
-                                                                   QString::number(ResultCircleCenterDesc.Points[1].Coordinates.y())) +
-                                       QString("%1 (%2,%3).").arg(QString::number(ResultCircleCenterDesc.Points[2].n),
-                                                                   QString::number(ResultCircleCenterDesc.Points[2].Coordinates.x()),
-                                                                   QString::number(ResultCircleCenterDesc.Points[2].Coordinates.y())) +
-                                       " Сторона треугольника, через которую проходит прямая: " +
-                                       (ResultCircleCenterDesc.TriangleLine[0] + 'A') +
-                                       (ResultCircleCenterDesc.TriangleLine[1] + 'A') +
-                                       ". Угол между вышеуказанной прямой и осью Оy — " +
-                                       QString::number(MinCircleAngle) + "°.");
+        ui->LabelCommunicator->setText(
+            "Cреди всех найденных окружностей, которые могут быть построены хотя бы на трех данных точках "
+            " и центр каждой из которых лежит на прямой, проходящей через сторону данного треугольника, была выбрана "
+            "та,"
+            " у которой угол между вышеуказанной прямой и осью Oy минимален."
+            " Она построена по точкам " +
+            QString("%1 (%2,%3), ")
+                .arg(QString::number(ResultCircleCenterDesc.Points[0].n),
+                     QString::number(ResultCircleCenterDesc.Points[0].Coordinates.x()),
+                     QString::number(ResultCircleCenterDesc.Points[0].Coordinates.y())) +
+            QString("%1 (%2,%3), ")
+                .arg(QString::number(ResultCircleCenterDesc.Points[1].n),
+                     QString::number(ResultCircleCenterDesc.Points[1].Coordinates.x()),
+                     QString::number(ResultCircleCenterDesc.Points[1].Coordinates.y())) +
+            QString("%1 (%2,%3).")
+                .arg(QString::number(ResultCircleCenterDesc.Points[2].n),
+                     QString::number(ResultCircleCenterDesc.Points[2].Coordinates.x()),
+                     QString::number(ResultCircleCenterDesc.Points[2].Coordinates.y())) +
+            " Сторона треугольника, через которую проходит прямая: " + (ResultCircleCenterDesc.TriangleLine[0] + 'A') +
+            (ResultCircleCenterDesc.TriangleLine[1] + 'A') + ". Угол между вышеуказанной прямой и осью Оy — " +
+            QString::number(MinCircleAngle) + "°.");
         DrawAnswer(Triangle, ResultCircleCenterDesc);
-    } else {
+    }
+    else {
         ui->LabelCommunicator->setText(NO_NEEDED_CIRCLES_FOUND);
     }
 }
-
-
 
 void MainWindow::on_InputFieldPointX_returnPressed()
 {
@@ -628,45 +618,37 @@ void MainWindow::on_ButtonClearTriangle_clicked()
     ui->InputFieldTriangleY2->clear();
 }
 
-
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     ClearNeeded();
 }
-
 
 void MainWindow::on_InputFieldTriangleX0_textChanged(const QString &arg1)
 {
     ClearNeeded();
 }
 
-
 void MainWindow::on_InputFieldTriangleY0_textChanged(const QString &arg1)
 {
     ClearNeeded();
 }
-
 
 void MainWindow::on_InputFieldTriangleX1_textChanged(const QString &arg1)
 {
     ClearNeeded();
 }
 
-
 void MainWindow::on_InputFieldTriangleY1_textChanged(const QString &arg1)
 {
     ClearNeeded();
 }
-
 
 void MainWindow::on_InputFieldTriangleX2_textChanged(const QString &arg1)
 {
     ClearNeeded();
 }
 
-
 void MainWindow::on_InputFieldTriangleY2_textChanged(const QString &arg1)
 {
     ClearNeeded();
 }
-

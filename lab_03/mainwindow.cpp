@@ -1,16 +1,16 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include <QtMath>
-#include <QDebug>
 #include <QColorDialog>
-#include <QPainterPath>
+#include <QDebug>
 #include <QPainter>
+#include <QPainterPath>
 #include <QStyle>
 #include <QtCharts>
+#include <QtMath>
 #include <sys/time.h>
 
-
-enum algorithms {
+enum algorithms
+{
     LIB,
     DDA,
     BRESENHAM_D,
@@ -20,10 +20,7 @@ enum algorithms {
     N_ALGORITHMS
 };
 
-
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     set_input_validators();
@@ -38,14 +35,13 @@ MainWindow::MainWindow(QWidget *parent)
     set_picture_style();
 }
 
-
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
-
-void MainWindow::set_input_validators() {
+void MainWindow::set_input_validators()
+{
     QValidator *DoubleValidator = new QDoubleValidator;
     QLocale locale_double(QLocale::C);
     locale_double.setNumberOptions(QLocale::RejectGroupSeparator);
@@ -59,30 +55,28 @@ void MainWindow::set_input_validators() {
     ui->InputFieldLineLength->setValidator(DoubleValidator);
 }
 
-
 void MainWindow::set_picture_style()
 {
-    ui->picture->setStyleSheet("border-radius: 0px;\nbackground-color: #" +
-                               QString::asprintf("%02X%02X%02X",
-                               BackgroundColor.red(), BackgroundColor.green(), BackgroundColor.blue()) + ";\n");
+    ui->picture->setStyleSheet(
+        "border-radius: 0px;\nbackground-color: #" +
+        QString::asprintf("%02X%02X%02X", BackgroundColor.red(), BackgroundColor.green(), BackgroundColor.blue()) +
+        ";\n");
 }
-
 
 void MainWindow::set_line_color_button_style()
 {
-    ui->LineColorButton->setStyleSheet("border-radius: 12px;\nbackground-color: #" +
-                                       QString::asprintf("%02X%02X%02X",
-                                       LineColor.red(), LineColor.green(), LineColor.blue()) + ";\n");
+    ui->LineColorButton->setStyleSheet(
+        "border-radius: 12px;\nbackground-color: #" +
+        QString::asprintf("%02X%02X%02X", LineColor.red(), LineColor.green(), LineColor.blue()) + ";\n");
 }
-
 
 void MainWindow::set_bg_color_button_style()
 {
-    ui->BackgroundColorButton->setStyleSheet("border-radius: 12px;\nbackground-color: #" +
-                                             QString::asprintf("%02X%02X%02X",
-                                             BackgroundColor.red(), BackgroundColor.green(), BackgroundColor.blue()) + ";\n");
+    ui->BackgroundColorButton->setStyleSheet(
+        "border-radius: 12px;\nbackground-color: #" +
+        QString::asprintf("%02X%02X%02X", BackgroundColor.red(), BackgroundColor.green(), BackgroundColor.blue()) +
+        ";\n");
 }
-
 
 void MainWindow::resize_scene_rect()
 {
@@ -97,20 +91,17 @@ void MainWindow::resize_scene_rect()
     ui->picture->setPixmap(pxp);
 }
 
-
 void MainWindow::showEvent(QShowEvent *event)
 {
     resize_scene_rect();
     set_picture_style();
 }
 
-
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     resize_scene_rect();
     set_picture_style();
 }
-
 
 void MainWindow::on_LineColorButton_clicked()
 {
@@ -119,7 +110,6 @@ void MainWindow::on_LineColorButton_clicked()
     LineColor = ColorDialog.getColor();
     set_line_color_button_style();
 }
-
 
 void MainWindow::on_BackgroundColorButton_clicked()
 {
@@ -130,7 +120,6 @@ void MainWindow::on_BackgroundColorButton_clicked()
     set_picture_style();
 }
 
-
 int get_double_from_input(qreal &number, QLineEdit *input)
 {
     QString str = input->text();
@@ -140,7 +129,6 @@ int get_double_from_input(qreal &number, QLineEdit *input)
     number = str.toDouble();
     return 0;
 }
-
 
 int MainWindow::get_line(QLineF &line)
 {
@@ -178,7 +166,6 @@ int MainWindow::get_line(QLineF &line)
     return 0;
 }
 
-
 int MainWindow::get_double(qreal &number, QLineEdit *InputField)
 {
     QString str = InputField->text();
@@ -189,22 +176,19 @@ int MainWindow::get_double(qreal &number, QLineEdit *InputField)
     return 0;
 }
 
-
 QPoint round_point(QPointF pointf)
 {
     int x = qRound(pointf.x());
     int y = qRound(pointf.y());
-    return (QPoint) {x, y};
+    return (QPoint){x, y};
 }
-
 
 QLine round_line(QLineF linef)
 {
     QPoint p1 = round_point(linef.p1());
     QPoint p2 = round_point(linef.p2());
-    return (QLine) {p1, p2};
+    return (QLine){p1, p2};
 }
-
 
 void MainWindow::on_DrawLineButton_clicked()
 {
@@ -220,39 +204,31 @@ void MainWindow::on_DrawLineButton_clicked()
 
     int a_i = ui->AlgorithmsChooser->currentIndex();
     switch (a_i) {
-    case LIB:
-    {
+    case LIB: {
         draw_line_lib(painter, linef.p1(), linef.p2());
     } break;
-    case DDA:
-    {
+    case DDA: {
         draw_line_dda(painter, linef.p1(), linef.p2());
     } break;
-    case BRESENHAM_D:
-    {
+    case BRESENHAM_D: {
         draw_line_bresenham_d(painter, linef.p1(), linef.p2());
     } break;
-    case BRESENHAM_I:
-    {
+    case BRESENHAM_I: {
         draw_line_bresenham_i(painter, linef.p1(), linef.p2());
     } break;
-    case BRESENHAM_ANTIALIASING:
-    {
+    case BRESENHAM_ANTIALIASING: {
         draw_line_bresenham_antialiasing(painter, linef.p1(), linef.p2());
     } break;
-    case WU:
-    {
+    case WU: {
         draw_line_Wu(painter, linef.p1(), linef.p2());
     } break;
-    default:
-    {
+    default: {
         qDebug() << "Something went wrong here.";
     }
     }
 
     ui->picture->setPixmap(pxp);
 }
-
 
 void MainWindow::on_ClearButton_clicked()
 {
@@ -267,7 +243,6 @@ void MainWindow::on_ClearButton_clicked()
     set_line_color_button_style();
     set_picture_style();
 }
-
 
 void MainWindow::on_DrawSunButton_clicked()
 {
@@ -305,37 +280,29 @@ void MainWindow::on_DrawSunButton_clicked()
         return;
     }
 
-
     angle = angle * M_PI / 180;
 
     int a_i = ui->AlgorithmsChooser->currentIndex();
     switch (a_i) {
-    case LIB:
-    {
+    case LIB: {
         draw_spectrum(painter, line_length, angle, &draw_line_lib);
     } break;
-    case DDA:
-    {
+    case DDA: {
         draw_spectrum(painter, line_length, angle, &draw_line_dda);
     } break;
-    case BRESENHAM_D:
-    {
+    case BRESENHAM_D: {
         draw_spectrum(painter, line_length, angle, &draw_line_bresenham_d);
     } break;
-    case BRESENHAM_I:
-    {
+    case BRESENHAM_I: {
         draw_spectrum(painter, line_length, angle, &draw_line_bresenham_i);
     } break;
-    case BRESENHAM_ANTIALIASING:
-    {
+    case BRESENHAM_ANTIALIASING: {
         draw_spectrum(painter, line_length, angle, &draw_line_bresenham_antialiasing);
     } break;
-    case WU:
-    {
+    case WU: {
         draw_spectrum(painter, line_length, angle, &draw_line_Wu);
     } break;
-    default:
-    {
+    default: {
         qDebug() << "Something went wrong here.";
     }
     }
@@ -352,8 +319,6 @@ unsigned long long current_time()
 
     return ts.tv_sec * 1000000000 + ts.tv_nsec;
 }
-
-
 
 #define N_TESTS 1000
 void MainWindow::on_CompareTimeButton_clicked()
@@ -405,7 +370,6 @@ void MainWindow::on_CompareTimeButton_clicked()
         draw_line_bresenham_i(painter, Start, End);
         times[BRESENHAM_I] += current_time() - start_time;
 
-
         start_time = current_time();
         draw_line_Wu(painter, Start, End);
         times[WU] += current_time() - start_time;
@@ -431,11 +395,8 @@ void MainWindow::on_CompareTimeButton_clicked()
     qreal steper = (max_time - min_time) * 0.1;
 
     QBarSet *set0 = new QBarSet("Алгоритмы построения отрезков");
-    *set0 << avg_times[DDA] * 4
-          << avg_times[BRESENHAM_D] * 3.2
-          << avg_times[BRESENHAM_I] * 3
-          << avg_times[BRESENHAM_ANTIALIASING]
-          << avg_times[WU];
+    *set0 << avg_times[DDA] * 4 << avg_times[BRESENHAM_D] * 3.2 << avg_times[BRESENHAM_I] * 3
+          << avg_times[BRESENHAM_ANTIALIASING] << avg_times[WU];
 
     QBarSeries *series = new QBarSeries();
     series->append(set0);
@@ -446,7 +407,11 @@ void MainWindow::on_CompareTimeButton_clicked()
     chart->setAnimationOptions(QChart::SeriesAnimations);
 
     QStringList categories;
-    categories << "ЦДА" << "Брезенхем с действ." << "Брезенхем с целоч." << "Брезенхем с устр. ступенч." << "Ву";
+    categories << "ЦДА"
+               << "Брезенхем с действ."
+               << "Брезенхем с целоч."
+               << "Брезенхем с устр. ступенч."
+               << "Ву";
     QBarCategoryAxis *axisX = new QBarCategoryAxis();
     axisX->append(categories);
     chart->addAxis(axisX, Qt::AlignBottom);
@@ -497,13 +462,11 @@ void MainWindow::on_CompareStearsButton_clicked()
         return;
     }
 
-
     QChartView *wdg = new QChartView;
     wdg->setMinimumWidth(1000);
 
     QChart *chrt = new QChart;
     chrt->setTitle("График ступенчатости");
-
 
     int line_width = 3;
     QLineSeries *dda_series = new QLineSeries();
@@ -526,14 +489,12 @@ void MainWindow::on_CompareStearsButton_clicked()
     wu_series->setName("By");
     wu_series->setPen(QPen(Qt::cyan, line_width, Qt::DotLine));
 
-
     QPointF Start = {0, 0};
     QPointF End = {0, line_length};
 
     qreal angle = 5;
     int n_steps = 90;
-    for(int i = 0; i <= n_steps; i += angle)
-    {
+    for (int i = 0; i <= n_steps; i += angle) {
         dda_series->append(i, count_stairs_dda(painter, Start, End));
         bresenham_d_series->append(i, count_stairs_bresenham_d(painter, Start, End));
         bresenham_i_series->append(i, count_stairs_bresenham_i(painter, Start, End));
@@ -542,7 +503,6 @@ void MainWindow::on_CompareStearsButton_clicked()
 
         rotate_point(End, Start, angle * M_PI / 180);
     }
-
 
     chrt->addSeries(dda_series);
     chrt->addSeries(bresenham_d_series);

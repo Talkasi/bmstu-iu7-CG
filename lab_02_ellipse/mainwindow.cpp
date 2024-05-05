@@ -1,17 +1,15 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include <QPainterPath>
-#include <QDoubleValidator>
-#include <QtMath>
 #include <QDebug>
+#include <QDoubleValidator>
+#include <QPainterPath>
+#include <QtMath>
 #include <cstring>
 
 #define EPS 1e-6
 #define MAX_HISTORY_N 10
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -36,7 +34,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->InputFieldTransferDy->setValidator(IntValidator);
 }
 
-void MainWindow::showEvent(QShowEvent *) {
+void MainWindow::showEvent(QShowEvent *)
+{
     delete ui->GraphicsView->scene();
     QGraphicsScene *Scene = new QGraphicsScene;
     QRectF SceneRect = ui->GraphicsView->rect();
@@ -92,14 +91,12 @@ void MainWindow::CalcDefaultFigurePoints(QGraphicsScene *Scene)
     DefaultFigure.MainPoints[3] = {wHalf + SideLength, hHalf + 0};
     DefaultFigure.MainPoints[4] = {wHalf + SideLength / 2, hHalf + 0};
 
-
     Ellipse LeftEllipse = {};
     LeftEllipse.Center = {wHalf + SideLength / 4, hHalf + SideLength / 2};
     LeftEllipse.Width = -EllipseHeight / 2;
     LeftEllipse.Height = EllipseWidth / 2;
     LeftEllipse.Angle = M_PI - qAsin(SideLength / EllipseHeight);
     ComputeEllipsePoints(DefaultFigure.EllipseLeft, LeftEllipse, Scene);
-
 
     Ellipse RightEllipse = {};
     RightEllipse.Center = {wHalf + SideLength * 3 / 4, hHalf + SideLength / 2};
@@ -127,7 +124,6 @@ int FiguresAreEqual(Figure &A, Figure &B)
     return 1;
 }
 
-
 void DrawEllipse(QVector<QPointF> EllipseArr, QGraphicsScene *Scene, QPen &Pen)
 {
     QPainterPath Path;
@@ -138,19 +134,14 @@ void DrawEllipse(QVector<QPointF> EllipseArr, QGraphicsScene *Scene, QPen &Pen)
     Scene->addPath(Path, Pen);
 }
 
-
 void MainWindow::DrawFigure(const Figure &Figure, QGraphicsScene *Scene, QPen &Pen)
 {
     for (int i = 0; i < N_MAIN_POINTS - 1; ++i) {
-        Scene->addLine(QLineF(Figure.MainPoints[i],
-                              Figure.MainPoints[(i + 1) % (N_MAIN_POINTS - 1)]), Pen);
+        Scene->addLine(QLineF(Figure.MainPoints[i], Figure.MainPoints[(i + 1) % (N_MAIN_POINTS - 1)]), Pen);
     }
 
-    Scene->addLine(QLineF(Figure.MainPoints[N_MAIN_POINTS - 1],
-                          Figure.MainPoints[1]), Pen);
-    Scene->addLine(QLineF(Figure.MainPoints[N_MAIN_POINTS - 1],
-                          Figure.MainPoints[2]), Pen);
-
+    Scene->addLine(QLineF(Figure.MainPoints[N_MAIN_POINTS - 1], Figure.MainPoints[1]), Pen);
+    Scene->addLine(QLineF(Figure.MainPoints[N_MAIN_POINTS - 1], Figure.MainPoints[2]), Pen);
 
     DrawEllipse(Figure.EllipseLeft, Scene, Pen);
     DrawEllipse(Figure.EllipseRight, Scene, Pen);
@@ -158,7 +149,6 @@ void MainWindow::DrawFigure(const Figure &Figure, QGraphicsScene *Scene, QPen &P
 
     QPen PointPen = QPen(Qt::darkGreen, 3);
     Scene->addEllipse(Scene->width() / 2, Scene->height() / 2, 2, 2, PointPen);
-
 
     qreal x_left = Figure.MainPoints[0].x();
     qreal x_right = Figure.MainPoints[0].x();
@@ -177,12 +167,12 @@ void MainWindow::DrawFigure(const Figure &Figure, QGraphicsScene *Scene, QPen &P
         if (Figure.MainPoints[i].y() > y_bottom)
             y_bottom = Figure.MainPoints[i].y();
     }
-    ui->LabelCenterScene->setText(QString("Центр сцены находится на координатах (%1,%2);\n").arg(\
-                                          QString::number(qRound(Scene->width() / 2)),
-                                          QString::number(qRound(Scene->height() / 2))) +
-                                  QString("Центр фигуры — на координатах (%1,%2).").arg(\
-                                          QString::number(qRound(x_left + (x_right - x_left) / 2)),
-                                          QString::number(qRound(y_top + (y_bottom - y_top) / 2))));
+    ui->LabelCenterScene->setText(
+        QString("Центр сцены находится на координатах (%1,%2);\n")
+            .arg(QString::number(qRound(Scene->width() / 2)), QString::number(qRound(Scene->height() / 2))) +
+        QString("Центр фигуры — на координатах (%1,%2).")
+            .arg(QString::number(qRound(x_left + (x_right - x_left) / 2)),
+                 QString::number(qRound(y_top + (y_bottom - y_top) / 2))));
 }
 
 void MainWindow::on_ButtonDrawDefaultImage_clicked()
@@ -257,7 +247,6 @@ void MainWindow::on_ButtonTransfer_clicked()
     }
 }
 
-
 void ScaleEllipse(QVector<QPointF> &EllipseArr, int Mx, int My, qreal kx, qreal ky)
 {
     for (size_t i = 0; i < EllipseArr.count(); ++i) {
@@ -288,8 +277,7 @@ void MainWindow::on_ButtonScaling_clicked()
         return;
     }
 
-    if (ui->InputFieldScalingKy->text().length() == 0)
-    {
+    if (ui->InputFieldScalingKy->text().length() == 0) {
         ui->LabelCommunicator->setText("> Произошла ошибка. Поле Ky пустое.");
         return;
     }
@@ -304,15 +292,16 @@ void MainWindow::on_ButtonScaling_clicked()
     qreal ky = ui->InputFieldScalingKy->text().toDouble(&validatorY);
 
     if (validatorX == false) {
-        ui->LabelCommunicator->setText("> Произошла ошибка. Данные поля Kx не могут быть переведены в вещественный тип.");
+        ui->LabelCommunicator->setText(
+            "> Произошла ошибка. Данные поля Kx не могут быть переведены в вещественный тип.");
     }
 
     if (validatorY == false) {
-        ui->LabelCommunicator->setText("> Произошла ошибка. Данные поля Ky не могут быть переведены в вещественный тип.");
+        ui->LabelCommunicator->setText(
+            "> Произошла ошибка. Данные поля Ky не могут быть переведены в вещественный тип.");
     }
 
-    if (!(1 - EPS < kx && kx < 1 + EPS) ||
-        !(1 - EPS < ky && ky < 1 + EPS)) {
+    if (!(1 - EPS < kx && kx < 1 + EPS) || !(1 - EPS < ky && ky < 1 + EPS)) {
         FigureHistory.resize(CurrentFHIndex + 1);
         Figure CurrentFigure = FigureHistory.last();
 
@@ -332,7 +321,6 @@ void MainWindow::on_ButtonScaling_clicked()
     }
 }
 
-
 void RotateEllipse(QVector<QPointF> &EllipseArr, int xc, int yc, qreal t)
 {
     for (size_t i = 0; i < EllipseArr.count(); ++i) {
@@ -345,7 +333,6 @@ void RotateEllipse(QVector<QPointF> &EllipseArr, int xc, int yc, qreal t)
         EllipseArr.replace(i, {NewX, NewY});
     }
 }
-
 
 void MainWindow::on_ButtonRotation_clicked()
 {
@@ -371,7 +358,8 @@ void MainWindow::on_ButtonRotation_clicked()
     qreal t = ui->InputFieldRotationAngle->text().toDouble(&validator) * M_PI / 180;
 
     if (validator == false) {
-        ui->LabelCommunicator->setText("> Произошла ошибка. Данные поля Угол не могут быть переведены в вещественный тип.");
+        ui->LabelCommunicator->setText(
+            "> Произошла ошибка. Данные поля Угол не могут быть переведены в вещественный тип.");
         return;
     }
 
@@ -401,7 +389,6 @@ void MainWindow::on_ButtonRotation_clicked()
 
     DrawImage();
 }
-
 
 void MainWindow::on_InputFieldTransferDx_returnPressed()
 {
@@ -454,10 +441,8 @@ void MainWindow::on_ButtonPrevious_clicked()
     DrawImage();
 }
 
-
 void MainWindow::on_ButtonNext_clicked()
 {
     ++CurrentFHIndex;
     DrawImage();
 }
-

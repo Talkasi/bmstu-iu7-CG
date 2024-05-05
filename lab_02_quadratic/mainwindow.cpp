@@ -1,16 +1,14 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include <QPainterPath>
-#include <QDoubleValidator>
-#include <QtMath>
 #include <QDebug>
+#include <QDoubleValidator>
+#include <QPainterPath>
+#include <QtMath>
 #include <cstring>
 
 #define EPS 1e-6
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -34,7 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->InputFieldTransferDy->setValidator(IntValidator);
 }
 
-void MainWindow::showEvent(QShowEvent *) {
+void MainWindow::showEvent(QShowEvent *)
+{
     delete ui->GraphicsView->scene();
     QGraphicsScene *Scene = new QGraphicsScene;
     QRectF SceneRect = ui->GraphicsView->rect();
@@ -66,7 +65,6 @@ void MainWindow::CalcDefaultFigurePoints(QGraphicsScene *Scene)
     DefaultFigure.MainPoints[3] = {wHalf + SideLength, hHalf + 0};
     DefaultFigure.MainPoints[4] = {wHalf + SideLength / 2, hHalf + 0};
 
-
     qreal dx = EllipseWidth * 2 / qSqrt(5);
     qreal dy = EllipseWidth / qSqrt(5);
     DefaultFigure.EllipsePoints[0] = {wHalf + SideLength / 4 + dx, hHalf + SideLength / 2 + dy};
@@ -88,18 +86,14 @@ int FiguresAreEqual(Figure &A, Figure &B)
     return 1;
 }
 
-
 void MainWindow::DrawFigure(const Figure &Figure, QGraphicsScene *Scene, QPen &Pen)
 {
     for (int i = 0; i < N_MAIN_POINTS - 1; ++i) {
-        Scene->addLine(QLineF(Figure.MainPoints[i],
-                              Figure.MainPoints[(i + 1) % (N_MAIN_POINTS - 1)]), Pen);
+        Scene->addLine(QLineF(Figure.MainPoints[i], Figure.MainPoints[(i + 1) % (N_MAIN_POINTS - 1)]), Pen);
     }
 
-    Scene->addLine(QLineF(Figure.MainPoints[N_MAIN_POINTS - 1],
-                          Figure.MainPoints[1]), Pen);
-    Scene->addLine(QLineF(Figure.MainPoints[N_MAIN_POINTS - 1],
-                          Figure.MainPoints[2]), Pen);
+    Scene->addLine(QLineF(Figure.MainPoints[N_MAIN_POINTS - 1], Figure.MainPoints[1]), Pen);
+    Scene->addLine(QLineF(Figure.MainPoints[N_MAIN_POINTS - 1], Figure.MainPoints[2]), Pen);
 
     QPainterPath Path;
     Path.moveTo(Figure.MainPoints[1].x(), Figure.MainPoints[1].y());
@@ -110,7 +104,6 @@ void MainWindow::DrawFigure(const Figure &Figure, QGraphicsScene *Scene, QPen &P
 
     QPen PointPen = QPen(Qt::darkGreen, 3);
     Scene->addEllipse(Scene->width() / 2, Scene->height() / 2, 2, 2, PointPen);
-
 
     qreal x_left = Figure.MainPoints[0].x();
     qreal x_right = Figure.MainPoints[0].x();
@@ -144,13 +137,12 @@ void MainWindow::DrawFigure(const Figure &Figure, QGraphicsScene *Scene, QPen &P
             y_bottom = Figure.EllipsePoints[i].y();
     }
 
-
-    ui->LabelCenterScene->setText(QString("Центр сцены находится на координатах (%1,%2), ").arg(\
-                                          QString::number(qRound(Scene->width() / 2)),
-                                          QString::number(qRound(Scene->height() / 2))) +
-                                  QString("центр фигуры — на координатах (%1,%2).").arg(\
-                                          QString::number(qRound(x_left + (x_right - x_left) / 2)),
-                                          QString::number(qRound(y_top + (y_bottom - y_top) / 2))));
+    ui->LabelCenterScene->setText(
+        QString("Центр сцены находится на координатах (%1,%2), ")
+            .arg(QString::number(qRound(Scene->width() / 2)), QString::number(qRound(Scene->height() / 2))) +
+        QString("центр фигуры — на координатах (%1,%2).")
+            .arg(QString::number(qRound(x_left + (x_right - x_left) / 2)),
+                 QString::number(qRound(y_top + (y_bottom - y_top) / 2))));
 }
 
 void MainWindow::on_ButtonDrawDefaultImage_clicked()
@@ -178,15 +170,13 @@ void MainWindow::DrawImage()
     DrawFigure(FigureHistory.at(CurrentFHIndex), Scene, BlackPen);
 }
 
-
 bool FigureFitsInScene(Figure &F, QRectF Rect)
 {
     for (int i = 0; i < N_MAIN_POINTS; ++i) {
         qreal x = F.MainPoints[i].x();
         qreal y = F.MainPoints[i].y();
 
-        if (!(Rect.x() <= x && x <= Rect.x() + Rect.width()) ||
-            !(Rect.y() <= y && y <= Rect.y() + Rect.height()))
+        if (!(Rect.x() <= x && x <= Rect.x() + Rect.width()) || !(Rect.y() <= y && y <= Rect.y() + Rect.height()))
             return false;
     }
 
@@ -194,14 +184,12 @@ bool FigureFitsInScene(Figure &F, QRectF Rect)
         qreal x = F.EllipsePoints[i].x();
         qreal y = F.EllipsePoints[i].y();
 
-        if (!(Rect.x() <= x && x <= Rect.x() + Rect.width()) ||
-            !(Rect.y() <= y && y <= Rect.y() + Rect.height()))
+        if (!(Rect.x() <= x && x <= Rect.x() + Rect.width()) || !(Rect.y() <= y && y <= Rect.y() + Rect.height()))
             return false;
     }
 
     return true;
 }
-
 
 void MainWindow::on_ButtonTransfer_clicked()
 {
@@ -238,7 +226,6 @@ void MainWindow::on_ButtonTransfer_clicked()
     }
 }
 
-
 void MainWindow::on_ButtonScaling_clicked()
 {
     if (ui->InputFieldScalingMx->text().length() == 0) {
@@ -256,8 +243,7 @@ void MainWindow::on_ButtonScaling_clicked()
         return;
     }
 
-    if (ui->InputFieldScalingKy->text().length() == 0)
-    {
+    if (ui->InputFieldScalingKy->text().length() == 0) {
         ui->LabelCommunicator->setText("> Произошла ошибка. Поле Ky пустое.");
         return;
     }
@@ -272,15 +258,16 @@ void MainWindow::on_ButtonScaling_clicked()
     qreal ky = ui->InputFieldScalingKy->text().toDouble(&validatorY);
 
     if (validatorX == false) {
-        ui->LabelCommunicator->setText("> Произошла ошибка. Данные поля Kx не могут быть переведены в вещественный тип.");
+        ui->LabelCommunicator->setText(
+            "> Произошла ошибка. Данные поля Kx не могут быть переведены в вещественный тип.");
     }
 
     if (validatorY == false) {
-        ui->LabelCommunicator->setText("> Произошла ошибка. Данные поля Ky не могут быть переведены в вещественный тип.");
+        ui->LabelCommunicator->setText(
+            "> Произошла ошибка. Данные поля Ky не могут быть переведены в вещественный тип.");
     }
 
-    if (!(1 - EPS < kx && kx < 1 + EPS) ||
-        !(1 - EPS < ky && ky < 1 + EPS)) {
+    if (!(1 - EPS < kx && kx < 1 + EPS) || !(1 - EPS < ky && ky < 1 + EPS)) {
         FigureHistory.resize(CurrentFHIndex + 1);
         Figure CurrentFigure = FigureHistory.last();
 
@@ -300,7 +287,6 @@ void MainWindow::on_ButtonScaling_clicked()
         DrawImage();
     }
 }
-
 
 void MainWindow::on_ButtonRotation_clicked()
 {
@@ -326,7 +312,8 @@ void MainWindow::on_ButtonRotation_clicked()
     qreal t = ui->InputFieldRotationAngle->text().toDouble(&validator) * M_PI / 180;
 
     if (validator == false) {
-        ui->LabelCommunicator->setText("> Произошла ошибка. Данные поля Угол не могут быть переведены в вещественный тип.");
+        ui->LabelCommunicator->setText(
+            "> Произошла ошибка. Данные поля Угол не могут быть переведены в вещественный тип.");
         return;
     }
 
@@ -362,7 +349,6 @@ void MainWindow::on_ButtonRotation_clicked()
 
     DrawImage();
 }
-
 
 void MainWindow::on_InputFieldTransferDx_returnPressed()
 {
@@ -415,10 +401,8 @@ void MainWindow::on_ButtonPrevious_clicked()
     DrawImage();
 }
 
-
 void MainWindow::on_ButtonNext_clicked()
 {
     ++CurrentFHIndex;
     DrawImage();
 }
-

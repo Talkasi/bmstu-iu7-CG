@@ -1,18 +1,18 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+#include "algorithms.h"
 #include <QGraphicsScene>
 #include <QLineEdit>
+#include <QMainWindow>
 #include <QPainter>
-#include "algorithms.h"
-
 
 #define EPS 1e-6
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
+namespace Ui
+{
+    class MainWindow;
 }
 QT_END_NAMESPACE
 
@@ -47,13 +47,11 @@ private slots:
     void set_line_color_button_style();
     void set_bg_color_button_style();
 
-
 private:
     Ui::MainWindow *ui;
 
     void draw_spectrum(QPainter &painter, qreal line_length, qreal angle, int (*alg)(QPainter &, QPointF, QPointF));
     void draw_spectrum(QPainter &painter, qreal line_length, qreal angle, int (*alg)(QPainter &, QPoint, QPoint));
-
 
     QPixmap pxp;
     QColor LineColor = QColor(0, 0, 0, 255);
