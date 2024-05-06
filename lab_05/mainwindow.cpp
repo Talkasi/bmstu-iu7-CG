@@ -141,6 +141,9 @@ QPoint round_point(QPointF pointf)
 
 void MainWindow::on_FillFigureButton_clicked()
 {
+    QPoint min_rect_p = {0, 0};
+    QPoint max_rext_p = {600, 600};
+    ui->picture->fill_figure(min_rect_p, max_rext_p);
 }
 
 void MainWindow::on_ClearButton_clicked()
@@ -176,14 +179,16 @@ int MainWindow::get_point(QPoint &point)
     return 1;
 }
 
-void MainWindow::add_point_to_table(const QPoint &new_point)
+void MainWindow::add_point_to_table(const QPoint &new_point, Qt::MouseButton button)
 {
-    ui->TablePoints->setCurrentItem(nullptr);
-    ui->TablePoints->insertRow(ui->TablePoints->rowCount());
-    ui->TablePoints->setItem(ui->TablePoints->rowCount() - 1, 0,
-                             new QTableWidgetItem(QString::asprintf("%d", new_point.x())));
-    ui->TablePoints->setItem(ui->TablePoints->rowCount() - 1, 1,
-                             new QTableWidgetItem(QString::asprintf("%d", new_point.y())));
+    if (button == Qt::LeftButton) {
+        ui->TablePoints->setCurrentItem(nullptr);
+        ui->TablePoints->insertRow(ui->TablePoints->rowCount());
+        ui->TablePoints->setItem(ui->TablePoints->rowCount() - 1, 0,
+                                 new QTableWidgetItem(QString::asprintf("%d", new_point.x())));
+        ui->TablePoints->setItem(ui->TablePoints->rowCount() - 1, 1,
+                                 new QTableWidgetItem(QString::asprintf("%d", new_point.y())));
+    }
 }
 
 void MainWindow::on_AddPointButton_clicked()
@@ -194,5 +199,5 @@ void MainWindow::on_AddPointButton_clicked()
     if (!get_point(new_point))
         return;
 
-    emit ui->picture->mousePressed(new_point);
+    emit ui->picture->mousePressed(new_point, Qt::LeftButton);
 }

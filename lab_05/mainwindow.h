@@ -44,7 +44,7 @@ public slots:
 
     void set_input_validators();
     int get_point(QPoint &point);
-    void add_point_to_table(const QPoint &new_point);
+    void add_point_to_table(const QPoint &new_point, Qt::MouseButton button);
     void ClearNeeded();
 
 private:

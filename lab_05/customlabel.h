@@ -9,7 +9,7 @@ class CustomLabel : public QLabel
 {
     Q_OBJECT
 signals:
-    void mousePressed(const QPoint &point);
+    void mousePressed(const QPoint &point, Qt::MouseButton button);
 
 public:
     CustomLabel(QWidget *parent = nullptr, Qt::WindowFlags fl = Qt::WindowFlags());
@@ -27,7 +27,15 @@ public:
     void resizeEvent(QResizeEvent *event);
     void showEvent(QShowEvent *event);
 
-    void onMousePressed(const QPoint &point);
+    void onMousePressed(const QPoint &point, Qt::MouseButton button);
+    void onLeftButtonPressed(const QPoint &point);
+    void onRightButtonPressed(const QPoint &point);
+
+    void fill_figure(QPoint min_rect_p, QPoint max_rect_p);
+
+    bool is_extremum(QImage &image, int x, int y);
+    bool is_top_extremum(QImage &image, int x, int y);
+    bool is_bottom_extremum(QImage &image, int x, int y);
 
 private:
     QPixmap pxp;
@@ -37,6 +45,7 @@ private:
 
     bool is_point_first = true;
     QPoint prev_point;
+    QPoint first_point;
 };
 
 #endif // CUSTOMLABEL_H

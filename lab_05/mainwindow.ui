@@ -732,24 +732,6 @@ Shift — построение отрезков, параллельных ося
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="ClearButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Очистить экран</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="FillFigureButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -764,6 +746,24 @@ Shift — построение отрезков, параллельных ося
           </property>
           <property name="text">
            <string>Выполнить заполнение</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="ClearButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Очистить экран</string>
           </property>
          </widget>
         </item>
