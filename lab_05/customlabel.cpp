@@ -1,5 +1,6 @@
 #include "customlabel.h"
 #include <QPainter>
+#include <QThread>
 
 CustomLabel::CustomLabel(QWidget *parent, Qt::WindowFlags f) : QLabel(parent, f)
 {
@@ -33,9 +34,9 @@ void CustomLabel::resize_scene_rect()
     this->setPixmap(pxp);
 }
 
-void CustomLabel::set_line_color(QColor lineColor)
+void CustomLabel::set_figure_color(QColor figure_color)
 {
-    this->line_color = lineColor;
+    this->figure_color = figure_color;
 }
 
 void CustomLabel::set_bg_color(QColor bgColor)
@@ -61,30 +62,34 @@ void CustomLabel::onLeftButtonPressed(const QPoint &point)
     painter.setPen(line_color);
     painter.setBackground(QBrush(bg_color));
 
-    if (is_point_first) {
-        is_point_first = false;
-        first_point = point;
-        painter.drawPoint(point);
-    }
-    else
-        painter.drawLine(prev_point, point);
+    if (figures.n_figures == 0)
+        figures.n_figures = 1;
 
-    prev_point = point;
+    Figure *cur_figure = &figures.data[figures.n_figures - 1];
+
+    if (cur_figure->n_points == 0)
+        painter.drawPoint(point);
+    else
+        draw_line_bresenham_i(painter, cur_figure->points[cur_figure->n_points - 1], point);
+
+    cur_figure->points[cur_figure->n_points++] = point;
     this->setPixmap(pxp);
 }
 
 void CustomLabel::onRightButtonPressed(const QPoint &point)
 {
-    if (is_point_first)
+    Figure *cur_figure = &figures.data[figures.n_figures - 1];
+    if (cur_figure->n_points <= 2)
         return;
 
     QPainter painter(&this->pxp);
     painter.setPen(line_color);
     painter.setBackground(QBrush(bg_color));
 
-    painter.drawLine(first_point, prev_point);
+    draw_line_bresenham_i(painter, cur_figure->points[0], cur_figure->points[cur_figure->n_points - 1]);
+    cur_figure->points[cur_figure->n_points++] = cur_figure->points[0];
+    ++figures.n_figures;
 
-    prev_point = first_point;
     this->setPixmap(pxp);
 }
 
@@ -100,61 +105,268 @@ void CustomLabel::clear_pixmap()
 {
     pxp.fill(Qt::transparent);
     this->setPixmap(pxp);
-    is_point_first = true;
+    for (int i = 0; i < figures.n_figures; ++i)
+        figures.data[i].n_points = 0;
+    figures.n_figures = 0;
 }
 
-bool CustomLabel::is_top_extremum(QImage &image, int x, int y)
+typedef struct {
+    double a;
+    double b;
+    double c;
+} LineCoefs;
+
+LineCoefs get_line_coefs(int x1, int y1, int x2, int y2)
 {
-    int n = 0;
-
-    n += image.pixelColor(x - 1, y - 1) == line_color;
-    n += image.pixelColor(x, y - 1) == line_color;
-    n += image.pixelColor(x + 1, y - 1) == line_color;
-
-    return n >= 2;
+    LineCoefs lc;
+    lc.a = y1 - y2;
+    lc.b = x2 - x1;
+    lc.c = x1 * y2 - x2 * y1;
+    return lc;
 }
 
-bool CustomLabel::is_bottom_extremum(QImage &image, int x, int y)
+QPoint solve_lines_intersection(LineCoefs &lc1, LineCoefs &lc2)
 {
-    int n = 0;
+    double opr = lc1.a * lc2.b - lc2.a * lc1.b;
+    double opr1 = lc1.b * lc2.c - lc1.c * lc2.b;
+    double opr2 = lc1.c * lc2.a - lc1.a * lc2.c;
 
-    n += image.pixelColor(x - 1, y + 1) == line_color;
-    n += image.pixelColor(x, y + 1) == line_color;
-    n += image.pixelColor(x + 1, y + 1) == line_color;
+    QPoint res;
+    res.setX(qRound(opr1 / opr));
+    res.setY(qRound(opr2 / opr));
 
-    return n >= 2;
+    return res;
 }
 
-bool CustomLabel::is_extremum(QImage &image, int x, int y)
+void CustomLabel::round_side(QPoint &p1, QPoint &p2)
 {
-    if (is_top_extremum(image, x, y))
-        return true;
+    if (p1 == p2)
+        return;
 
-    if (is_bottom_extremum(image, x, y))
-        return true;
+    LineCoefs lc = get_line_coefs(p1.x(), p1.y(), p2.x(), p2.y());
 
-    return false;
+    int y_min, y_max;
+
+    if (p1.y() > p2.y()) {
+        y_max = p1.y();
+        y_min = p2.y();
+    } else {
+        y_max = p2.y();
+        y_min = p1.y();
+    }
+
+    QImage canvas_image(pxp.toImage());
+    for (int y = y_min; y < y_max; ++y) {
+        LineCoefs scan_lc = {0, 1, (double)-y};
+        QPoint intersec_p = solve_lines_intersection(lc, scan_lc);
+
+        if (canvas_image.pixelColor(intersec_p.x(), y) != helper_color)
+            canvas_image.setPixelColor(intersec_p.x(), y, helper_color);
+        else {
+            int x = intersec_p.x() + 1;
+            while (canvas_image.pixelColor(x, y) == helper_color)
+                ++x;
+            canvas_image.setPixelColor(x, y, helper_color);
+        }
+    }
+    pxp = QPixmap::fromImage(canvas_image);
+    this->setPixmap(pxp);
 }
 
-void CustomLabel::fill_figure(QPoint min_rect_p, QPoint max_rect_p)
+static int sign(int n)
 {
+
+    if (n == 0)
+        return 0;
+    return (n >= 0) ? 1 : -1;
+}
+
+
+void CustomLabel::draw_line_bresenham_i(QPainter &painter, QPoint Start, QPoint End)
+{
+    int x = Start.x();
+    int y = Start.y();
+    if (Start == End)
+        return;
+
+    int dx = End.x() - Start.x();
+    int dy = End.y() - Start.y();
+
+    int sx = sign(dx);
+    int sy = sign(dy);
+
+    dx = qAbs(dx);
+    dy = qAbs(dy);
+
+    int exchange = 0;
+    if (dy > dx) {
+        exchange = 1;
+        int tmp = dx;
+        dx = dy;
+        dy = tmp;
+    }
+
+    int err = 2 * dy - dx;
+    for (int i = 0; i <= dx; ++i) {
+        painter.drawPoint(x, y);
+
+        if (err >= 0) {
+            if (exchange)
+                x += sx;
+            else
+                y += sy;
+            err -= 2 * dx;
+        }
+        if (err <= 0) {
+            if (exchange)
+                y += sy;
+            else
+                x += sx;
+            err += 2 * dy;
+        }
+    }
+}
+
+void CustomLabel::draw_clever_line(QPoint &p1, QPoint &p2)
+{
+    if (p1 == p2)
+        return;
+
+    int x = p1.x();
+    int y = p1.y();
+
+    int dx = p2.x() - p1.x();
+    int dy = p2.y() - p1.y();
+
+    int sx = sign(dx);
+    int sy = sign(dy);
+
+    dx = qAbs(dx);
+    dy = qAbs(dy);
+
+    int exchange = 0;
+    if (dy > dx) {
+        exchange = 1;
+        int tmp = dx;
+        dx = dy;
+        dy = tmp;
+    }
+
+    int err = 2 * dy - dx;
+    QImage canvas_image(pxp.toImage());
+
+    int prev_y = y + 1;
+    for (int i = 0; i <= dx; ++i) {
+        if (prev_y != y) {
+            if (canvas_image.pixelColor(x, y) != helper_color)
+                canvas_image.setPixelColor(x, y, helper_color);
+            else
+                canvas_image.setPixelColor(x + 1, y, helper_color);
+        }
+        prev_y = y;
+
+        if (err >= 0) {
+            if (exchange)
+                x += sx;
+            else
+                y += sy;
+            err -= 2 * dx;
+        }
+        if (err <= 0) {
+            if (exchange)
+                y += sy;
+            else
+                x += sx;
+            err += 2 * dy;
+        }
+    }
+    pxp = QPixmap::fromImage(canvas_image);
+    this->setPixmap(pxp);
+}
+
+void CustomLabel::prepare_borders_to_fill()
+{
+    for (size_t i = 0; i < figures.n_figures; ++i)
+        for (size_t j = 0; figures.data[i].n_points && j < figures.data[i].n_points - 1; ++j) {
+            round_side(figures.data[i].points[j],
+                             figures.data[i].points[j + 1]);
+        }
+}
+
+void CustomLabel::get_rect_p(QPoint &min, QPoint &max) {
+    QPoint cur_point = figures.data[0].points[0];
+    min.setX(cur_point.x());
+    min.setY(cur_point.y());
+    max = min;
+
+    for (size_t i = 0; i < figures.n_figures; ++i) {
+        for (size_t j = 0; j < figures.data[i].n_points; ++j) {
+            cur_point = figures.data[i].points[j];
+            if (cur_point.x() < min.x())
+                min.setX(cur_point.x());
+
+            if (cur_point.y() < min.y())
+                min.setY(cur_point.y());
+
+            if (cur_point.x() > max.x())
+                max.setX(cur_point.x());
+
+            if (cur_point.y() > max.y())
+                max.setY(cur_point.y());
+        }
+    }
+
+    min.setX(min.x() - 1);
+    max.setX(max.x() + 1);
+}
+
+void CustomLabel::fill_figure(unsigned long delayMs)
+{
+    prepare_borders_to_fill();
+    if (delayMs > 0) {
+        this->repaint();
+        QThread::msleep(delayMs);
+    }
+
+    QPoint min_rect_p;
+    QPoint max_rect_p;
+
+    get_rect_p(min_rect_p, max_rect_p);
     QImage canvas_image(pxp.toImage());
 
     bool flag;
     for (int y = max_rect_p.y(); y >= min_rect_p.y(); --y) {
         flag = false;
         for (int x = min_rect_p.x(); x <= max_rect_p.x(); ++x) {
-            if (canvas_image.pixelColor(x, y) == line_color)
-                if ((flag == 0 && !is_extremum(canvas_image, x, y)) || flag == 1)
-                    flag = !flag;
+            if (canvas_image.pixelColor(x, y) == helper_color)
+                flag = !flag;
 
             if (flag)
-                canvas_image.setPixelColor(x, y, line_color);
+                canvas_image.setPixelColor(x, y, figure_color);
             else
                 canvas_image.setPixelColor(x, y, bg_color);
+        }
+
+        if (delayMs > 0) {
+            pxp = QPixmap::fromImage(canvas_image);
+            this->setPixmap(pxp);
+            this->repaint();
+
+            QThread::msleep(delayMs);
         }
     }
 
     pxp = QPixmap::fromImage(canvas_image);
+    this->setPixmap(pxp);
+    QThread::msleep(delayMs * 3);
+
+    QPainter painter(&this->pxp);
+    painter.setPen(line_color);
+    painter.setBackground(QBrush(bg_color));
+    for (size_t i = 0; i < figures.n_figures; ++i)
+        for (size_t j = 0; figures.data[i].n_points && j < figures.data[i].n_points - 1; ++j) {
+            draw_line_bresenham_i(painter, figures.data[i].points[j],
+                             figures.data[i].points[j + 1]);
+        }
     this->setPixmap(pxp);
 }

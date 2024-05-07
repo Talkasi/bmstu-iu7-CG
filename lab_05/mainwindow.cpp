@@ -7,6 +7,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     set_input_validators();
 
     connect(ui->picture, &CustomLabel::mousePressed, this, &MainWindow::add_point_to_table);
+
+    ui->NoDelayButton->setChecked(1);
 }
 
 MainWindow::~MainWindow()
@@ -26,58 +28,46 @@ void MainWindow::set_input_validators()
     ui->InputFieldY->setValidator(DoubleValidator);
 }
 
-void MainWindow::on_ButtonBlackLine_clicked()
-{
-    ui->LIneColorLabel->setText("Цвет линии (текущий цвет - черный)");
-    ui->picture->set_line_color(Qt::black);
-}
-
 void MainWindow::on_ButtonWhiteLine_clicked()
 {
-    ui->LIneColorLabel->setText("Цвет линии (текущий цвет - белый)");
-    ui->picture->set_line_color(Qt::white);
+    ui->LIneColorLabel->setText("Цвет фигуры (текущий цвет - белый)");
+    ui->picture->set_figure_color(Qt::white);
 }
 
 void MainWindow::on_ButtonYellowLine_clicked()
 {
-    ui->LIneColorLabel->setText("Цвет линии (текущий цвет - жёлтый)");
-    ui->picture->set_line_color(Qt::yellow);
+    ui->LIneColorLabel->setText("Цвет фигуры (текущий цвет - жёлтый)");
+    ui->picture->set_figure_color(Qt::yellow);
 }
 
 void MainWindow::on_ButtonRedLine_clicked()
 {
-    ui->LIneColorLabel->setText("Цвет линии (текущий цвет - красный)");
-    ui->picture->set_line_color(Qt::red);
+    ui->LIneColorLabel->setText("Цвет фигуры (текущий цвет - красный)");
+    ui->picture->set_figure_color(Qt::red);
 }
 
 void MainWindow::on_ButtonOrangeLine_clicked()
 {
-    ui->LIneColorLabel->setText("Цвет линии (текущий цвет - оранжевый)");
-    ui->picture->set_line_color(QColorConstants::Svg::orange);
+    ui->LIneColorLabel->setText("Цвет фигуры (текущий цвет - оранжевый)");
+    ui->picture->set_figure_color(QColorConstants::Svg::orange);
 }
 
 void MainWindow::on_ButtonPurpleLine_clicked()
 {
-    ui->LIneColorLabel->setText("Цвет линии (текущий цвет - фиолетовый)");
-    ui->picture->set_line_color(QColorConstants::Svg::purple);
+    ui->LIneColorLabel->setText("Цвет фигуры (текущий цвет - фиолетовый)");
+    ui->picture->set_figure_color(QColorConstants::Svg::purple);
 }
 
 void MainWindow::on_ButtonBlueLine_clicked()
 {
-    ui->LIneColorLabel->setText("Цвет линии (текущий цвет - синий)");
-    ui->picture->set_line_color(Qt::blue);
+    ui->LIneColorLabel->setText("Цвет фигуры (текущий цвет - синий)");
+    ui->picture->set_figure_color(Qt::blue);
 }
 
 void MainWindow::on_ButtonGreenLine_clicked()
 {
-    ui->LIneColorLabel->setText("Цвет линии (текущий цвет - зелёный)");
-    ui->picture->set_line_color(Qt::green);
-}
-
-void MainWindow::on_ButtonBlackBG_clicked()
-{
-    ui->picture->set_bg_color(Qt::black);
-    ui->picture->set_picture_style();
+    ui->LIneColorLabel->setText("Цвет фигуры (текущий цвет - зелёный)");
+    ui->picture->set_figure_color(Qt::green);
 }
 
 void MainWindow::on_ButtonWhiteBG_clicked()
@@ -141,9 +131,10 @@ QPoint round_point(QPointF pointf)
 
 void MainWindow::on_FillFigureButton_clicked()
 {
-    QPoint min_rect_p = {0, 0};
-    QPoint max_rext_p = {600, 600};
-    ui->picture->fill_figure(min_rect_p, max_rext_p);
+    unsigned long delayMs = 0;
+    if (ui->DelayButton->isChecked())
+        delayMs = 50;
+    ui->picture->fill_figure(delayMs);
 }
 
 void MainWindow::on_ClearButton_clicked()
@@ -200,4 +191,15 @@ void MainWindow::on_AddPointButton_clicked()
         return;
 
     emit ui->picture->mousePressed(new_point, Qt::LeftButton);
+}
+
+void MainWindow::on_CloseFigureButton_clicked()
+{
+    ClearNeeded();
+
+    QPoint new_point;
+    if (!get_point(new_point))
+        return;
+
+    emit ui->picture->mousePressed(new_point, Qt::RightButton);
 }

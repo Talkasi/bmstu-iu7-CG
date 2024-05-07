@@ -65,7 +65,7 @@ background-color: white;
            </font>
           </property>
           <property name="text">
-           <string>Цвет линии (текущий цвет - черный)</string>
+           <string>Цвет фигуры (текущий цвет - зелёный)</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -74,24 +74,6 @@ background-color: white;
         </item>
         <item>
          <layout class="QHBoxLayout" name="LineColorsLay">
-          <item>
-           <widget class="QPushButton" name="ButtonBlackLine">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">QPushButton{
-	background-color: rgb(0,0,0);
-}</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item>
            <widget class="QPushButton" name="ButtonWhiteLine">
             <property name="sizePolicy">
@@ -254,24 +236,6 @@ background-color: white;
         </item>
         <item>
          <layout class="QHBoxLayout" name="BGColorLay">
-          <item>
-           <widget class="QPushButton" name="ButtonBlackBG">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">QPushButton{
-	background-color: rgb(0,0,0);
-}</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item>
            <widget class="QPushButton" name="ButtonWhiteBG">
             <property name="sizePolicy">
@@ -679,25 +643,7 @@ Shift — построение отрезков, параллельных ося
          <number>4</number>
         </property>
         <item>
-         <widget class="QRadioButton" name="ParamButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>С задержкой</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="CanonButton">
+         <widget class="QRadioButton" name="NoDelayButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -711,6 +657,24 @@ Shift — построение отрезков, параллельных ося
           </property>
           <property name="text">
            <string>Без задержки</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="DelayButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>С задержкой</string>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -820,7 +784,7 @@ Shift — построение отрезков, параллельных ося
      <x>0</x>
      <y>0</y>
      <width>1877</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>

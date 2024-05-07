@@ -19,7 +19,6 @@ public:
     ~MainWindow();
 
 public slots:
-    void on_ButtonBlackLine_clicked();
     void on_ButtonWhiteLine_clicked();
     void on_ButtonYellowLine_clicked();
     void on_ButtonRedLine_clicked();
@@ -28,7 +27,6 @@ public slots:
     void on_ButtonBlueLine_clicked();
     void on_ButtonGreenLine_clicked();
 
-    void on_ButtonBlackBG_clicked();
     void on_ButtonWhiteBG_clicked();
     void on_ButtonYellowBG_clicked();
     void on_ButtonRedBG_clicked();
@@ -40,7 +38,7 @@ public slots:
     void on_ClearButton_clicked();
     void on_AddPointButton_clicked();
     void on_FillFigureButton_clicked();
-    // void on_CloseFigureButton_clicked();
+    void on_CloseFigureButton_clicked();
 
     void set_input_validators();
     int get_point(QPoint &point);

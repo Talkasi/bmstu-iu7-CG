@@ -5,6 +5,17 @@
 #include <QMouseEvent>
 #include <QTableWidget>
 
+typedef struct {
+    size_t n_points;
+    QPoint points[1000];
+} Figure;
+
+typedef struct {
+    size_t n_figures;
+    Figure data[50];
+} Figures;
+
+
 class CustomLabel : public QLabel
 {
     Q_OBJECT
@@ -19,7 +30,7 @@ public:
     void set_picture_style();
     void resize_scene_rect();
 
-    void set_line_color(QColor lineColor);
+    void set_figure_color(QColor lineColor);
     void set_bg_color(QColor bgColor);
 
     void clear_pixmap();
@@ -31,21 +42,25 @@ public:
     void onLeftButtonPressed(const QPoint &point);
     void onRightButtonPressed(const QPoint &point);
 
-    void fill_figure(QPoint min_rect_p, QPoint max_rect_p);
+    void fill_figure(unsigned long delayMs);
+    void prepare_borders(QPoint points[]);
 
-    bool is_extremum(QImage &image, int x, int y);
-    bool is_top_extremum(QImage &image, int x, int y);
-    bool is_bottom_extremum(QImage &image, int x, int y);
+    void prepare_borders_to_fill();
+    void get_rect_p(QPoint &min, QPoint &max);
+    void round_side(QPoint &p1, QPoint &p2);
+
+    void draw_clever_line(QPoint &p1, QPoint &p2);
+    void draw_line_bresenham_i(QPainter &painter, QPoint Start, QPoint End);
 
 private:
     QPixmap pxp;
 
+    QColor figure_color = Qt::green;
     QColor line_color = Qt::black;
     QColor bg_color = Qt::white;
+    QColor helper_color = QColorConstants::Svg::pink;
 
-    bool is_point_first = true;
-    QPoint prev_point;
-    QPoint first_point;
+    Figures figures = {};
 };
 
 #endif // CUSTOMLABEL_H
