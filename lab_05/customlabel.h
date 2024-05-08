@@ -15,6 +15,10 @@ typedef struct {
     Figure data[50];
 } Figures;
 
+typedef struct {
+    size_t n_questions;
+    QPoint data;
+} QuestionPoint;
 
 class CustomLabel : public QLabel
 {
@@ -52,15 +56,23 @@ public:
     void draw_clever_line(QPoint &p1, QPoint &p2);
     void draw_line_bresenham_i(QPainter &painter, QPoint Start, QPoint End);
 
+    void draw_borders();
+    void add_in_question(QPoint p);
+    void clear_questions();
+
 private:
     QPixmap pxp;
 
     QColor figure_color = Qt::green;
     QColor line_color = Qt::black;
     QColor bg_color = Qt::white;
+    QColor spec_bg_color = Qt::transparent;
     QColor helper_color = QColorConstants::Svg::pink;
 
     Figures figures = {};
+
+    size_t n_questionable = 0;
+    QuestionPoint questionable_points[1000] = {};
 };
 
 #endif // CUSTOMLABEL_H

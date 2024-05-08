@@ -138,6 +138,28 @@ QPoint solve_lines_intersection(LineCoefs &lc1, LineCoefs &lc2)
     return res;
 }
 
+void CustomLabel::add_in_question(QPoint p)
+{
+    for (size_t i = 0; i < n_questionable; ++i) {
+        if (questionable_points[i].data == p) {
+            ++questionable_points[i].n_questions;
+            return;
+        }
+    }
+
+    questionable_points[n_questionable].n_questions = 1;
+    questionable_points[n_questionable].data = p;
+    ++n_questionable;
+}
+
+void CustomLabel::clear_questions()
+{
+    for (size_t i = 0; i < n_questionable; ++i)
+        questionable_points[i].n_questions = 0;
+
+    n_questionable = 0;
+}
+
 void CustomLabel::round_side(QPoint &p1, QPoint &p2)
 {
     if (p1 == p2)
@@ -148,26 +170,22 @@ void CustomLabel::round_side(QPoint &p1, QPoint &p2)
     int y_min, y_max;
 
     if (p1.y() > p2.y()) {
-        y_max = p1.y();
+        y_max = p1.y() - 1;
         y_min = p2.y();
     } else {
         y_max = p2.y();
-        y_min = p1.y();
+        y_min = p1.y() + 1;
     }
 
     QImage canvas_image(pxp.toImage());
-    for (int y = y_min; y < y_max; ++y) {
+    for (int y = y_min; y <= y_max; ++y) {
         LineCoefs scan_lc = {0, 1, (double)-y};
         QPoint intersec_p = solve_lines_intersection(lc, scan_lc);
 
         if (canvas_image.pixelColor(intersec_p.x(), y) != helper_color)
             canvas_image.setPixelColor(intersec_p.x(), y, helper_color);
-        else {
-            int x = intersec_p.x() + 1;
-            while (canvas_image.pixelColor(x, y) == helper_color)
-                ++x;
-            canvas_image.setPixelColor(x, y, helper_color);
-        }
+        else
+            add_in_question({intersec_p.x(), y});
     }
     pxp = QPixmap::fromImage(canvas_image);
     this->setPixmap(pxp);
@@ -180,7 +198,6 @@ static int sign(int n)
         return 0;
     return (n >= 0) ? 1 : -1;
 }
-
 
 void CustomLabel::draw_line_bresenham_i(QPainter &painter, QPoint Start, QPoint End)
 {
@@ -286,11 +303,20 @@ void CustomLabel::draw_clever_line(QPoint &p1, QPoint &p2)
 
 void CustomLabel::prepare_borders_to_fill()
 {
+    clear_questions();
     for (size_t i = 0; i < figures.n_figures; ++i)
         for (size_t j = 0; figures.data[i].n_points && j < figures.data[i].n_points - 1; ++j) {
             round_side(figures.data[i].points[j],
-                             figures.data[i].points[j + 1]);
+                       figures.data[i].points[j + 1]);
         }
+
+    QImage canvas_image(pxp.toImage());
+    for (size_t i = 0; i < n_questionable; ++i)
+        if (questionable_points[i].n_questions % 2 == 1)
+            canvas_image.setPixelColor(questionable_points[i].data.x() + 1,
+                                       questionable_points[i].data.y(), helper_color);
+    pxp = QPixmap::fromImage(canvas_image);
+    this->setPixmap(pxp);
 }
 
 void CustomLabel::get_rect_p(QPoint &min, QPoint &max) {
@@ -320,6 +346,21 @@ void CustomLabel::get_rect_p(QPoint &min, QPoint &max) {
     max.setX(max.x() + 1);
 }
 
+void CustomLabel::draw_borders()
+{
+    QPainter painter(&this->pxp);
+    painter.setPen(line_color);
+    painter.setBackground(QBrush(bg_color));
+
+    for (size_t i = 0; i < figures.n_figures; ++i)
+        for (size_t j = 0; figures.data[i].n_points && j < figures.data[i].n_points - 1; ++j) {
+            draw_line_bresenham_i(painter, figures.data[i].points[j],
+                                  figures.data[i].points[j + 1]);
+        }
+
+    this->setPixmap(pxp);
+}
+
 void CustomLabel::fill_figure(unsigned long delayMs)
 {
     prepare_borders_to_fill();
@@ -344,7 +385,7 @@ void CustomLabel::fill_figure(unsigned long delayMs)
             if (flag)
                 canvas_image.setPixelColor(x, y, figure_color);
             else
-                canvas_image.setPixelColor(x, y, bg_color);
+                canvas_image.setPixelColor(x, y, spec_bg_color);
         }
 
         if (delayMs > 0) {
@@ -358,15 +399,11 @@ void CustomLabel::fill_figure(unsigned long delayMs)
 
     pxp = QPixmap::fromImage(canvas_image);
     this->setPixmap(pxp);
-    QThread::msleep(delayMs * 3);
 
-    QPainter painter(&this->pxp);
-    painter.setPen(line_color);
-    painter.setBackground(QBrush(bg_color));
-    for (size_t i = 0; i < figures.n_figures; ++i)
-        for (size_t j = 0; figures.data[i].n_points && j < figures.data[i].n_points - 1; ++j) {
-            draw_line_bresenham_i(painter, figures.data[i].points[j],
-                             figures.data[i].points[j + 1]);
-        }
-    this->setPixmap(pxp);
+    if (delayMs > 0) {
+        this->repaint();
+        QThread::msleep(delayMs);
+    }
+
+    draw_borders();
 }
