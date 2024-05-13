@@ -131,10 +131,16 @@ QPoint round_point(QPointF pointf)
 
 void MainWindow::on_FillFigureButton_clicked()
 {
+    ClearNeeded();
     unsigned long delayMs = 0;
+    unsigned long timeMs;
     if (ui->DelayButton->isChecked())
-        delayMs = 50;
-    ui->picture->fill_figure(delayMs);
+        delayMs = 30;
+
+    if (ui->picture->fill_figure(delayMs, timeMs))
+        ui->LabelCommunicator->setText("> Ошибка. На экране есть незамкнутая фигура.");
+    else
+        ui->LabelCommunicator->setText(QString::asprintf("> Время работы алгоритма: %ld ms.", timeMs));
 }
 
 void MainWindow::on_ClearButton_clicked()
@@ -155,12 +161,12 @@ int MainWindow::get_point(QPoint &point)
     int y;
 
     if (get_int_from_input(x, ui->InputFieldX)) {
-        ui->LabelCommunicator->setText("Ошибка. Поле `X` ввода координат точки пустое.");
+        ui->LabelCommunicator->setText("> Ошибка. Поле `X` ввода координат точки пустое.");
         return 0;
     }
 
     if (get_int_from_input(y, ui->InputFieldY)) {
-        ui->LabelCommunicator->setText("Ошибка. Поле `Y` ввода координат точки пустое.");
+        ui->LabelCommunicator->setText("> Ошибка. Поле `Y` ввода координат точки пустое.");
         return 0;
     }
 
@@ -197,9 +203,5 @@ void MainWindow::on_CloseFigureButton_clicked()
 {
     ClearNeeded();
 
-    QPoint new_point;
-    if (!get_point(new_point))
-        return;
-
-    emit ui->picture->mousePressed(new_point, Qt::RightButton);
+    emit ui->picture->mousePressed({0, 0}, Qt::RightButton);
 }

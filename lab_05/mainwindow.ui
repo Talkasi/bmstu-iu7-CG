@@ -607,8 +607,7 @@ background-color: white;
         </property>
         <property name="text">
          <string>Построить точку — левая кнопка мыши
-Замкнуть фигуру — правая кнопка мыши
-Shift — построение отрезков, параллельных осям</string>
+Замкнуть фигуру — правая кнопка мыши</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -747,6 +746,11 @@ Shift — построение отрезков, параллельных ося
           <height>100</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>&gt;</string>
         </property>
@@ -784,7 +788,7 @@ Shift — построение отрезков, параллельных ося
      <x>0</x>
      <y>0</y>
      <width>1877</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

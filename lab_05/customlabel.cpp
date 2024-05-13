@@ -1,6 +1,8 @@
 #include "customlabel.h"
 #include <QPainter>
 #include <QThread>
+#include <QDateTime>
+#include <QMessageBox>
 
 CustomLabel::CustomLabel(QWidget *parent, Qt::WindowFlags f) : QLabel(parent, f)
 {
@@ -79,8 +81,12 @@ void CustomLabel::onLeftButtonPressed(const QPoint &point)
 void CustomLabel::onRightButtonPressed(const QPoint &point)
 {
     Figure *cur_figure = &figures.data[figures.n_figures - 1];
-    if (cur_figure->n_points <= 2)
+    if (cur_figure->n_points <= 2) {
+        QMessageBox messageBox;
+        messageBox.critical(0,"Ошибка", "> Недостаточно отрезков для замыкания фигуры. Необходимо минимум 2.");
+        messageBox.setFixedSize(500,200);
         return;
+    }
 
     QPainter painter(&this->pxp);
     painter.setPen(line_color);
@@ -138,28 +144,6 @@ QPoint solve_lines_intersection(LineCoefs &lc1, LineCoefs &lc2)
     return res;
 }
 
-void CustomLabel::add_in_question(QPoint p)
-{
-    for (size_t i = 0; i < n_questionable; ++i) {
-        if (questionable_points[i].data == p) {
-            ++questionable_points[i].n_questions;
-            return;
-        }
-    }
-
-    questionable_points[n_questionable].n_questions = 1;
-    questionable_points[n_questionable].data = p;
-    ++n_questionable;
-}
-
-void CustomLabel::clear_questions()
-{
-    for (size_t i = 0; i < n_questionable; ++i)
-        questionable_points[i].n_questions = 0;
-
-    n_questionable = 0;
-}
-
 void CustomLabel::round_side(QPoint &p1, QPoint &p2)
 {
     if (p1 == p2)
@@ -170,22 +154,26 @@ void CustomLabel::round_side(QPoint &p1, QPoint &p2)
     int y_min, y_max;
 
     if (p1.y() > p2.y()) {
-        y_max = p1.y() - 1;
+        y_max = p1.y();
         y_min = p2.y();
     } else {
         y_max = p2.y();
-        y_min = p1.y() + 1;
+        y_min = p1.y();
     }
 
     QImage canvas_image(pxp.toImage());
-    for (int y = y_min; y <= y_max; ++y) {
+    for (int y = y_min; y < y_max; ++y) {
         LineCoefs scan_lc = {0, 1, (double)-y};
         QPoint intersec_p = solve_lines_intersection(lc, scan_lc);
 
         if (canvas_image.pixelColor(intersec_p.x(), y) != helper_color)
             canvas_image.setPixelColor(intersec_p.x(), y, helper_color);
-        else
-            add_in_question({intersec_p.x(), y});
+        else {
+            int x = intersec_p.x() + 1;
+            while (canvas_image.pixelColor(x, y) == helper_color)
+                ++x;
+            canvas_image.setPixelColor(x, y, helper_color);
+        }
     }
     pxp = QPixmap::fromImage(canvas_image);
     this->setPixmap(pxp);
@@ -193,7 +181,6 @@ void CustomLabel::round_side(QPoint &p1, QPoint &p2)
 
 static int sign(int n)
 {
-
     if (n == 0)
         return 0;
     return (n >= 0) ? 1 : -1;
@@ -244,79 +231,13 @@ void CustomLabel::draw_line_bresenham_i(QPainter &painter, QPoint Start, QPoint 
     }
 }
 
-void CustomLabel::draw_clever_line(QPoint &p1, QPoint &p2)
-{
-    if (p1 == p2)
-        return;
-
-    int x = p1.x();
-    int y = p1.y();
-
-    int dx = p2.x() - p1.x();
-    int dy = p2.y() - p1.y();
-
-    int sx = sign(dx);
-    int sy = sign(dy);
-
-    dx = qAbs(dx);
-    dy = qAbs(dy);
-
-    int exchange = 0;
-    if (dy > dx) {
-        exchange = 1;
-        int tmp = dx;
-        dx = dy;
-        dy = tmp;
-    }
-
-    int err = 2 * dy - dx;
-    QImage canvas_image(pxp.toImage());
-
-    int prev_y = y + 1;
-    for (int i = 0; i <= dx; ++i) {
-        if (prev_y != y) {
-            if (canvas_image.pixelColor(x, y) != helper_color)
-                canvas_image.setPixelColor(x, y, helper_color);
-            else
-                canvas_image.setPixelColor(x + 1, y, helper_color);
-        }
-        prev_y = y;
-
-        if (err >= 0) {
-            if (exchange)
-                x += sx;
-            else
-                y += sy;
-            err -= 2 * dx;
-        }
-        if (err <= 0) {
-            if (exchange)
-                y += sy;
-            else
-                x += sx;
-            err += 2 * dy;
-        }
-    }
-    pxp = QPixmap::fromImage(canvas_image);
-    this->setPixmap(pxp);
-}
-
 void CustomLabel::prepare_borders_to_fill()
 {
-    clear_questions();
     for (size_t i = 0; i < figures.n_figures; ++i)
         for (size_t j = 0; figures.data[i].n_points && j < figures.data[i].n_points - 1; ++j) {
             round_side(figures.data[i].points[j],
                        figures.data[i].points[j + 1]);
         }
-
-    QImage canvas_image(pxp.toImage());
-    for (size_t i = 0; i < n_questionable; ++i)
-        if (questionable_points[i].n_questions % 2 == 1)
-            canvas_image.setPixelColor(questionable_points[i].data.x() + 1,
-                                       questionable_points[i].data.y(), helper_color);
-    pxp = QPixmap::fromImage(canvas_image);
-    this->setPixmap(pxp);
 }
 
 void CustomLabel::get_rect_p(QPoint &min, QPoint &max) {
@@ -361,8 +282,22 @@ void CustomLabel::draw_borders()
     this->setPixmap(pxp);
 }
 
-void CustomLabel::fill_figure(unsigned long delayMs)
+bool CustomLabel::all_figures_closed()
 {
+    for (size_t i = 0; i < figures.n_figures; ++i)
+        if (figures.data[i].n_points - 1 == 0 || figures.data[i].points[0] != figures.data[i].points[figures.data[i].n_points - 1])
+            return false;
+
+    return true;
+}
+
+int CustomLabel::fill_figure(unsigned long delayMs, unsigned long &time)
+{
+    if (!all_figures_closed())
+        return 1;
+
+    time = QDateTime::currentMSecsSinceEpoch();
+
     prepare_borders_to_fill();
     if (delayMs > 0) {
         this->repaint();
@@ -406,4 +341,7 @@ void CustomLabel::fill_figure(unsigned long delayMs)
     }
 
     draw_borders();
+
+    time = QDateTime::currentMSecsSinceEpoch() - time;
+    return 0;
 }

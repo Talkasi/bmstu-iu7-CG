@@ -15,11 +15,6 @@ typedef struct {
     Figure data[50];
 } Figures;
 
-typedef struct {
-    size_t n_questions;
-    QPoint data;
-} QuestionPoint;
-
 class CustomLabel : public QLabel
 {
     Q_OBJECT
@@ -46,19 +41,16 @@ public:
     void onLeftButtonPressed(const QPoint &point);
     void onRightButtonPressed(const QPoint &point);
 
-    void fill_figure(unsigned long delayMs);
+    int fill_figure(unsigned long delayMs, unsigned long &time);
     void prepare_borders(QPoint points[]);
 
     void prepare_borders_to_fill();
     void get_rect_p(QPoint &min, QPoint &max);
     void round_side(QPoint &p1, QPoint &p2);
-
-    void draw_clever_line(QPoint &p1, QPoint &p2);
     void draw_line_bresenham_i(QPainter &painter, QPoint Start, QPoint End);
 
     void draw_borders();
-    void add_in_question(QPoint p);
-    void clear_questions();
+    bool all_figures_closed();
 
 private:
     QPixmap pxp;
@@ -70,9 +62,6 @@ private:
     QColor helper_color = QColorConstants::Svg::pink;
 
     Figures figures = {};
-
-    size_t n_questionable = 0;
-    QuestionPoint questionable_points[1000] = {};
 };
 
 #endif // CUSTOMLABEL_H
