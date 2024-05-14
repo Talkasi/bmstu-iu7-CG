@@ -5,12 +5,14 @@
 #include <QMouseEvent>
 #include <QTableWidget>
 
-typedef struct {
+typedef struct
+{
     size_t n_points;
     QPoint points[1000];
 } Figure;
 
-typedef struct {
+typedef struct
+{
     size_t n_figures;
     Figure data[50];
 } Figures;
@@ -53,7 +55,7 @@ public:
     bool all_figures_closed();
 
 private:
-    QPixmap pxp;
+    QPixmap pxp = {};
 
     QColor figure_color = Qt::green;
     QColor line_color = Qt::black;

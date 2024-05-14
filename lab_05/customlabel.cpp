@@ -1,8 +1,8 @@
 #include "customlabel.h"
-#include <QPainter>
-#include <QThread>
 #include <QDateTime>
 #include <QMessageBox>
+#include <QPainter>
+#include <QThread>
 
 CustomLabel::CustomLabel(QWidget *parent, Qt::WindowFlags f) : QLabel(parent, f)
 {
@@ -23,6 +23,16 @@ void CustomLabel::set_picture_style()
                         QString::asprintf("%02X%02X%02X", bg_color.red(), bg_color.green(), bg_color.blue()) + ";\n");
 }
 
+void CustomLabel::set_figure_color(QColor figure_color)
+{
+    this->figure_color = figure_color;
+}
+
+void CustomLabel::set_bg_color(QColor bgColor)
+{
+    this->bg_color = bgColor;
+}
+
 void CustomLabel::resize_scene_rect()
 {
     QRect SceneRect = this->rect();
@@ -36,16 +46,6 @@ void CustomLabel::resize_scene_rect()
     this->setPixmap(pxp);
 }
 
-void CustomLabel::set_figure_color(QColor figure_color)
-{
-    this->figure_color = figure_color;
-}
-
-void CustomLabel::set_bg_color(QColor bgColor)
-{
-    this->bg_color = bgColor;
-}
-
 void CustomLabel::resizeEvent(QResizeEvent *event)
 {
     resize_scene_rect();
@@ -54,8 +54,8 @@ void CustomLabel::resizeEvent(QResizeEvent *event)
 
 void CustomLabel::showEvent(QShowEvent *event)
 {
-    resize_scene_rect();
-    set_picture_style();
+    // resize_scene_rect();
+    // set_picture_style();
 }
 
 void CustomLabel::onLeftButtonPressed(const QPoint &point)
@@ -83,8 +83,8 @@ void CustomLabel::onRightButtonPressed(const QPoint &point)
     Figure *cur_figure = &figures.data[figures.n_figures - 1];
     if (cur_figure->n_points <= 2) {
         QMessageBox messageBox;
-        messageBox.critical(0,"Ошибка", "> Недостаточно отрезков для замыкания фигуры. Необходимо минимум 2.");
-        messageBox.setFixedSize(500,200);
+        messageBox.critical(0, "Ошибка", "> Недостаточно отрезков для замыкания фигуры. Необходимо минимум 2.");
+        messageBox.setFixedSize(500, 200);
         return;
     }
 
@@ -113,10 +113,11 @@ void CustomLabel::clear_pixmap()
     this->setPixmap(pxp);
     for (int i = 0; i < figures.n_figures; ++i)
         figures.data[i].n_points = 0;
-    figures.n_figures = 0;
+    figures.n_figures = 1;
 }
 
-typedef struct {
+typedef struct
+{
     double a;
     double b;
     double c;
@@ -156,7 +157,8 @@ void CustomLabel::round_side(QPoint &p1, QPoint &p2)
     if (p1.y() > p2.y()) {
         y_max = p1.y();
         y_min = p2.y();
-    } else {
+    }
+    else {
         y_max = p2.y();
         y_min = p1.y();
     }
@@ -235,12 +237,12 @@ void CustomLabel::prepare_borders_to_fill()
 {
     for (size_t i = 0; i < figures.n_figures; ++i)
         for (size_t j = 0; figures.data[i].n_points && j < figures.data[i].n_points - 1; ++j) {
-            round_side(figures.data[i].points[j],
-                       figures.data[i].points[j + 1]);
+            round_side(figures.data[i].points[j], figures.data[i].points[j + 1]);
         }
 }
 
-void CustomLabel::get_rect_p(QPoint &min, QPoint &max) {
+void CustomLabel::get_rect_p(QPoint &min, QPoint &max)
+{
     QPoint cur_point = figures.data[0].points[0];
     min.setX(cur_point.x());
     min.setY(cur_point.y());
@@ -275,8 +277,7 @@ void CustomLabel::draw_borders()
 
     for (size_t i = 0; i < figures.n_figures; ++i)
         for (size_t j = 0; figures.data[i].n_points && j < figures.data[i].n_points - 1; ++j) {
-            draw_line_bresenham_i(painter, figures.data[i].points[j],
-                                  figures.data[i].points[j + 1]);
+            draw_line_bresenham_i(painter, figures.data[i].points[j], figures.data[i].points[j + 1]);
         }
 
     this->setPixmap(pxp);
@@ -284,8 +285,9 @@ void CustomLabel::draw_borders()
 
 bool CustomLabel::all_figures_closed()
 {
-    for (size_t i = 0; i < figures.n_figures; ++i)
-        if (figures.data[i].n_points - 1 == 0 || figures.data[i].points[0] != figures.data[i].points[figures.data[i].n_points - 1])
+    for (size_t i = 0; i < figures.n_figures && figures.data[i].n_points; ++i)
+        if (figures.data[i].n_points - 1 == 0 ||
+            (figures.data[i].points[0] != figures.data[i].points[figures.data[i].n_points - 1]))
             return false;
 
     return true;
