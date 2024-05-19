@@ -141,7 +141,7 @@ void MainWindow::on_FillFigureButton_clicked()
     unsigned long delayMs = 0;
     unsigned long timeMs;
     if (ui->DelayButton->isChecked())
-        delayMs = 30;
+        delayMs = 5;
 
     if (ui->picture->fill_figure_with_seed(delayMs, timeMs))
         ui->LabelCommunicator->setText("> Ошибка. На экране есть незамкнутая фигура.");

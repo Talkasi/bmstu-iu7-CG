@@ -2,6 +2,7 @@
 #include <QDateTime>
 #include <QMessageBox>
 #include <QPainter>
+#include <QStack>
 #include <QThread>
 
 CustomLabel::CustomLabel(QWidget *parent, Qt::WindowFlags f) : QLabel(parent, f)
@@ -98,11 +99,8 @@ void CustomLabel::onMiddleButtonPresssed(const QPoint &point)
     QPainter painter(&this->pxp);
     painter.setBackground(QBrush(bg_color));
 
-    painter.setPen(bg_color);
-    painter.drawEllipse(seed_point, 5, 5);
-
-    painter.setPen(line_color);
-    painter.drawEllipse(point, 5, 5);
+    painter.setPen(Qt::darkRed);
+    painter.drawPoint(point);
 
     seed_point = point;
     this->setPixmap(pxp);
@@ -190,56 +188,82 @@ void CustomLabel::draw_ellipse(Ellipse ellipse)
     this->setPixmap(pxp);
 }
 
+void CustomLabel::seed_search(QImage &canvas_image, QStack<QPoint> &stack, int xl, int x_prev, int y)
+{
+    int x = xl;
+
+    do {
+        bool fl = false;
+
+        while (x <= x_prev && canvas_image.pixelColor({x, y}) != line_color &&
+               canvas_image.pixelColor({x, y}) != figure_color) {
+            ++x;
+            fl = true;
+        }
+
+        if (fl == true) {
+            if (x == x_prev && canvas_image.pixelColor({x, y}) != line_color &&
+                canvas_image.pixelColor({x, y}) != figure_color)
+                stack.push({x, y});
+            else
+                stack.push({x - 1, y});
+        }
+        ++x;
+    } while (x - 1 < x_prev);
+}
+
 int CustomLabel::fill_figure_with_seed(unsigned long delayMs, unsigned long &time)
 {
     if (!all_figures_closed())
         return 1;
 
     time = QDateTime::currentMSecsSinceEpoch();
+    QStack<QPoint> stack = {};
 
-    // prepare_borders_to_fill();
-    // if (delayMs > 0) {
-    //     this->repaint();
-    //     QThread::msleep(delayMs);
-    // }
+    QImage canvas_image(pxp.toImage());
 
-    // QPoint min_rect_p;
-    // QPoint max_rect_p;
+    QPoint seed = {};
+    int x_prev;
+    int x;
+    stack.push(seed_point);
+    while (!stack.isEmpty()) {
+        seed = stack.pop();
+        if (canvas_image.pixelColor(seed) == bg_color)
+            continue;
 
-    // get_rect_p(min_rect_p, max_rect_p);
-    // QImage canvas_image(pxp.toImage());
+        x = seed.x();
 
-    // bool flag;
-    // for (int y = max_rect_p.y(); y >= min_rect_p.y(); --y) {
-    //     flag = false;
-    //     for (int x = min_rect_p.x(); x <= max_rect_p.x(); ++x) {
-    //         if (canvas_image.pixelColor(x, y) == helper_color)
-    //             flag = !flag;
+        do {
+            canvas_image.setPixelColor({x, seed.y()}, figure_color);
+            ++x;
+        } while (canvas_image.pixelColor({x, seed.y()}) != line_color);
 
-    //         if (flag)
-    //             canvas_image.setPixelColor(x, y, figure_color);
-    //         else
-    //             canvas_image.setPixelColor(x, y, spec_bg_color);
-    //     }
+        x_prev = x - 1;
+        x = seed.x();
 
-    //     if (delayMs > 0) {
-    //         pxp = QPixmap::fromImage(canvas_image);
-    //         this->setPixmap(pxp);
-    //         this->repaint();
+        do {
+            canvas_image.setPixelColor({x, seed.y()}, figure_color);
+            --x;
+        } while (canvas_image.pixelColor({x, seed.y()}) != line_color);
 
-    //         QThread::msleep(delayMs);
-    //     }
-    // }
+        seed_search(canvas_image, stack, x + 1, x_prev, seed.y() - 1);
+        seed_search(canvas_image, stack, x + 1, x_prev, seed.y() + 1);
 
-    // pxp = QPixmap::fromImage(canvas_image);
-    // this->setPixmap(pxp);
+        if (delayMs > 0) {
+            pxp = QPixmap::fromImage(canvas_image);
+            this->setPixmap(pxp);
+            this->repaint();
+            QThread::msleep(delayMs);
+        }
+    }
+
+    pxp = QPixmap::fromImage(canvas_image);
+    this->setPixmap(pxp);
 
     if (delayMs > 0) {
         this->repaint();
         QThread::msleep(delayMs);
     }
-
-    draw_borders();
 
     time = QDateTime::currentMSecsSinceEpoch() - time;
     return 0;

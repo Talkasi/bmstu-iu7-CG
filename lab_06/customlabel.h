@@ -51,6 +51,7 @@ public:
     void onMiddleButtonPresssed(const QPoint &point);
 
     int fill_figure_with_seed(unsigned long delayMs, unsigned long &time);
+    void seed_search(QImage &canvas_image, QStack<QPoint> &stack, int xl, int x_prev, int y);
     void prepare_borders(QPoint points[]);
 
     void prepare_borders_to_fill();
@@ -72,6 +73,8 @@ private:
     QColor helper_color = QColorConstants::Svg::pink;
 
     Figures figures = {};
+
+    int seed_point_r = 5;
     QPoint seed_point = {};
 };
 
