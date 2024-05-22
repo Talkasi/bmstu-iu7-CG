@@ -63,18 +63,20 @@ public:
     void draw_ellipse(Ellipse ellipse);
     bool all_figures_closed();
 
+    bool is_seed_set();
+    QPoint get_seed_point();
+
 private:
     QPixmap pxp = {};
 
     QColor figure_color = Qt::green;
     QColor line_color = Qt::black;
-    QColor bg_color = Qt::white;
-    QColor spec_bg_color = Qt::transparent;
-    QColor helper_color = QColorConstants::Svg::pink;
+    QColor bg_color = QColor(254, 254, 254);
 
     Figures figures = {};
 
-    int seed_point_r = 5;
+    bool seed_set = false;
+    int seed_point_r = 1;
     QPoint seed_point = {};
 };
 

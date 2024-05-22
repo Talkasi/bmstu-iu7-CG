@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->picture, &CustomLabel::mousePressed, this, &MainWindow::add_point_to_table);
 
     ui->NoDelayButton->setChecked(1);
+    ui->SeedLabel->setText("Затравочная точка не установлена.");
 }
 
 MainWindow::~MainWindow()
@@ -24,14 +25,18 @@ MainWindow::~MainWindow()
 
 void MainWindow::set_input_validators()
 {
+    QValidator *IntValidator = new QIntValidator;
     QValidator *DoubleValidator = new QDoubleValidator;
 
     QLocale locale(QLocale::C);
     locale.setNumberOptions(QLocale::RejectGroupSeparator);
     DoubleValidator->setLocale(locale);
 
-    ui->InputFieldX->setValidator(DoubleValidator);
-    ui->InputFieldY->setValidator(DoubleValidator);
+    ui->InputFieldX->setValidator(IntValidator);
+    ui->InputFieldY->setValidator(IntValidator);
+    ui->InputFieldR_3->setValidator(DoubleValidator);
+    ui->InputFieldRx_3->setValidator(DoubleValidator);
+    ui->InputFieldRy_3->setValidator(DoubleValidator);
 }
 
 void MainWindow::on_ButtonWhiteLine_clicked()
@@ -76,55 +81,14 @@ void MainWindow::on_ButtonGreenLine_clicked()
     ui->picture->set_figure_color(Qt::green);
 }
 
-void MainWindow::on_ButtonWhiteBG_clicked()
-{
-    ui->picture->set_bg_color(Qt::white);
-    ui->picture->set_picture_style();
-}
-
-void MainWindow::on_ButtonYellowBG_clicked()
-{
-    ui->picture->set_bg_color(Qt::yellow);
-    ui->picture->set_picture_style();
-}
-
-void MainWindow::on_ButtonRedBG_clicked()
-{
-    ui->picture->set_bg_color(Qt::red);
-    ui->picture->set_picture_style();
-}
-
-void MainWindow::on_ButtonOrangeBG_clicked()
-{
-    ui->picture->set_bg_color(QColorConstants::Svg::orange);
-    ui->picture->set_picture_style();
-}
-
-void MainWindow::on_ButtonPurpleBG_clicked()
-{
-    ui->picture->set_bg_color(QColorConstants::Svg::purple);
-    ui->picture->set_picture_style();
-}
-
-void MainWindow::on_ButtonBlueBG_clicked()
-{
-    ui->picture->set_bg_color(Qt::blue);
-    ui->picture->set_picture_style();
-}
-
-void MainWindow::on_ButtonGreenBG_clicked()
-{
-    ui->picture->set_bg_color(Qt::green);
-    ui->picture->set_picture_style();
-}
-
 int get_int_from_input(int &number, QLineEdit *input)
 {
     QString str = input->text();
     if (str.length() == 0)
         return 1;
 
-    number = str.toInt();
+    // number = str.toInt();
+    number = qRound(str.toDouble());
     return 0;
 }
 
@@ -143,16 +107,24 @@ void MainWindow::on_FillFigureButton_clicked()
     if (ui->DelayButton->isChecked())
         delayMs = 5;
 
-    if (ui->picture->fill_figure_with_seed(delayMs, timeMs))
-        ui->LabelCommunicator->setText("> Ошибка. На экране есть незамкнутая фигура.");
-    else
+    int rc;
+    if ((rc = ui->picture->fill_figure_with_seed(delayMs, timeMs))) {
+        if (rc == 1)
+            ui->LabelCommunicator->setText("> Ошибка. На экране есть незамкнутая фигура.");
+        if (rc == 2)
+            ui->LabelCommunicator->setText("> Ошибка. Затравочная точка не задана.");
+    }
+    else {
         ui->LabelCommunicator->setText(QString::asprintf("> Время работы алгоритма: %ld ms.", timeMs));
+        ui->SeedLabel->setText("Затравочная точка не установлена.");
+    }
 }
 
 void MainWindow::on_ClearButton_clicked()
 {
     ClearNeeded();
     ui->picture->clear_pixmap();
+    ui->SeedLabel->setText("Затравочная точка не установлена.");
     ui->TablePoints->setRowCount(0);
 }
 
@@ -224,6 +196,15 @@ void MainWindow::add_point_to_table(const QPoint &new_point, Qt::MouseButton but
                                  new QTableWidgetItem(QString::asprintf("%d", new_point.x())));
         ui->TablePoints->setItem(ui->TablePoints->rowCount() - 1, 1,
                                  new QTableWidgetItem(QString::asprintf("%d", new_point.y())));
+    }
+
+    if (ui->picture->is_seed_set()) {
+        QPoint seed_point = ui->picture->get_seed_point();
+        ui->SeedLabel->setText(
+            QString::asprintf("Координаты затравочной точки (%d, %d).", seed_point.x(), seed_point.y()));
+    }
+    else {
+        ui->SeedLabel->setText("Затравочная точка не установлена.");
     }
 }
 

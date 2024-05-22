@@ -96,6 +96,13 @@ void CustomLabel::onRightButtonPressed(const QPoint &point)
 
 void CustomLabel::onMiddleButtonPresssed(const QPoint &point)
 {
+    if (seed_set) {
+        QMessageBox messageBox;
+        messageBox.critical(0, "Ошибка", "> Затравочная точка уже установлена.");
+        messageBox.setFixedSize(500, 200);
+        return;
+    }
+
     QPainter painter(&this->pxp);
     painter.setBackground(QBrush(bg_color));
 
@@ -103,6 +110,7 @@ void CustomLabel::onMiddleButtonPresssed(const QPoint &point)
     painter.drawPoint(point);
 
     seed_point = point;
+    seed_set = true;
     this->setPixmap(pxp);
 }
 
@@ -123,6 +131,7 @@ void CustomLabel::clear_pixmap()
     for (int i = 0; i < figures.n_figures; ++i)
         figures.data[i].n_points = 0;
     figures.n_figures = 1;
+    seed_set = false;
 }
 
 void CustomLabel::get_rect_p(QPoint &min, QPoint &max)
@@ -151,6 +160,16 @@ void CustomLabel::get_rect_p(QPoint &min, QPoint &max)
 
     min.setX(min.x());
     max.setX(max.x());
+}
+
+bool CustomLabel::is_seed_set()
+{
+    return seed_set;
+}
+
+QPoint CustomLabel::get_seed_point()
+{
+    return seed_point;
 }
 
 void CustomLabel::draw_borders()
@@ -190,6 +209,9 @@ void CustomLabel::draw_ellipse(Ellipse ellipse)
 
 void CustomLabel::seed_search(QImage &canvas_image, QStack<QPoint> &stack, int xl, int x_prev, int y)
 {
+    if (y < 0 || y >= pxp.height())
+        return;
+
     int x = xl;
 
     do {
@@ -209,13 +231,16 @@ void CustomLabel::seed_search(QImage &canvas_image, QStack<QPoint> &stack, int x
                 stack.push({x - 1, y});
         }
         ++x;
-    } while (x - 1 < x_prev);
+    } while (0 <= x - 1 && x - 1 < pxp.width() && x - 1 < x_prev);
 }
 
 int CustomLabel::fill_figure_with_seed(unsigned long delayMs, unsigned long &time)
 {
     if (!all_figures_closed())
         return 1;
+
+    if (!is_seed_set())
+        return 2;
 
     time = QDateTime::currentMSecsSinceEpoch();
     QStack<QPoint> stack = {};
@@ -236,7 +261,7 @@ int CustomLabel::fill_figure_with_seed(unsigned long delayMs, unsigned long &tim
         do {
             canvas_image.setPixelColor({x, seed.y()}, figure_color);
             ++x;
-        } while (canvas_image.pixelColor({x, seed.y()}) != line_color);
+        } while (x < pxp.width() && canvas_image.pixelColor({x, seed.y()}) != line_color);
 
         x_prev = x - 1;
         x = seed.x();
@@ -244,7 +269,7 @@ int CustomLabel::fill_figure_with_seed(unsigned long delayMs, unsigned long &tim
         do {
             canvas_image.setPixelColor({x, seed.y()}, figure_color);
             --x;
-        } while (canvas_image.pixelColor({x, seed.y()}) != line_color);
+        } while (x >= 0 && canvas_image.pixelColor({x, seed.y()}) != line_color);
 
         seed_search(canvas_image, stack, x + 1, x_prev, seed.y() - 1);
         seed_search(canvas_image, stack, x + 1, x_prev, seed.y() + 1);
@@ -266,5 +291,6 @@ int CustomLabel::fill_figure_with_seed(unsigned long delayMs, unsigned long &tim
     }
 
     time = QDateTime::currentMSecsSinceEpoch() - time;
+    seed_set = false;
     return 0;
 }
