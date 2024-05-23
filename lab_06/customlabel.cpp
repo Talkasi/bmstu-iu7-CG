@@ -11,11 +11,17 @@ CustomLabel::CustomLabel(QWidget *parent, Qt::WindowFlags f) : QLabel(parent, f)
     set_picture_style();
 
     connect(this, &CustomLabel::mousePressed, this, &CustomLabel::onMousePressed);
+    connect(this, &CustomLabel::mouseMoved, this, &CustomLabel::onMouseMoved);
 }
 
 void CustomLabel::mousePressEvent(QMouseEvent *event)
 {
     emit mousePressed(event->pos(), event->button());
+}
+
+void CustomLabel::mouseMoveEvent(QMouseEvent *event)
+{
+    emit mouseMoved(event->pos(), event->button());
 }
 
 void CustomLabel::set_picture_style()
@@ -96,22 +102,8 @@ void CustomLabel::onRightButtonPressed(const QPoint &point)
 
 void CustomLabel::onMiddleButtonPresssed(const QPoint &point)
 {
-    if (seed_set) {
-        QMessageBox messageBox;
-        messageBox.critical(0, "Ошибка", "> Затравочная точка уже установлена.");
-        messageBox.setFixedSize(500, 200);
-        return;
-    }
-
-    QPainter painter(&this->pxp);
-    painter.setBackground(QBrush(bg_color));
-
-    painter.setPen(Qt::darkRed);
-    painter.drawPoint(point);
-
     seed_point = point;
     seed_set = true;
-    this->setPixmap(pxp);
 }
 
 void CustomLabel::onMousePressed(const QPoint &point, Qt::MouseButton button)
@@ -124,6 +116,11 @@ void CustomLabel::onMousePressed(const QPoint &point, Qt::MouseButton button)
         onMiddleButtonPresssed(point);
 }
 
+void CustomLabel::onMouseMoved(const QPoint &point, Qt::MouseButton button)
+{
+    onLeftButtonPressed(point);
+}
+
 void CustomLabel::clear_pixmap()
 {
     pxp.fill(Qt::transparent);
@@ -131,7 +128,7 @@ void CustomLabel::clear_pixmap()
     for (int i = 0; i < figures.n_figures; ++i)
         figures.data[i].n_points = 0;
     figures.n_figures = 1;
-    seed_set = false;
+    // seed_set = false;
 }
 
 void CustomLabel::get_rect_p(QPoint &min, QPoint &max)
@@ -207,7 +204,7 @@ void CustomLabel::draw_ellipse(Ellipse ellipse)
     this->setPixmap(pxp);
 }
 
-void CustomLabel::seed_search(QImage &canvas_image, QStack<QPoint> &stack, int xl, int x_prev, int y)
+void CustomLabel::seed_search(QImage &canvas_image, QStack<QPoint> &stack, int xl, int xr, int y)
 {
     if (y < 0 || y >= pxp.height())
         return;
@@ -217,21 +214,21 @@ void CustomLabel::seed_search(QImage &canvas_image, QStack<QPoint> &stack, int x
     do {
         bool fl = false;
 
-        while (x <= x_prev && canvas_image.pixelColor({x, y}) != line_color &&
+        while (x <= xr && canvas_image.pixelColor({x, y}) != line_color &&
                canvas_image.pixelColor({x, y}) != figure_color) {
             ++x;
             fl = true;
         }
 
         if (fl == true) {
-            if (x == x_prev && canvas_image.pixelColor({x, y}) != line_color &&
+            if (x == xr && canvas_image.pixelColor({x, y}) != line_color &&
                 canvas_image.pixelColor({x, y}) != figure_color)
                 stack.push({x, y});
             else
                 stack.push({x - 1, y});
         }
         ++x;
-    } while (0 <= x - 1 && x - 1 < pxp.width() && x - 1 < x_prev);
+    } while (0 <= x - 1 && x - 1 < pxp.width() && x - 1 < xr);
 }
 
 int CustomLabel::fill_figure_with_seed(unsigned long delayMs, unsigned long &time)
@@ -248,7 +245,7 @@ int CustomLabel::fill_figure_with_seed(unsigned long delayMs, unsigned long &tim
     QImage canvas_image(pxp.toImage());
 
     QPoint seed = {};
-    int x_prev;
+    int xr;
     int x;
     stack.push(seed_point);
     while (!stack.isEmpty()) {
@@ -263,7 +260,7 @@ int CustomLabel::fill_figure_with_seed(unsigned long delayMs, unsigned long &tim
             ++x;
         } while (x < pxp.width() && canvas_image.pixelColor({x, seed.y()}) != line_color);
 
-        x_prev = x - 1;
+        xr = x - 1;
         x = seed.x();
 
         do {
@@ -271,8 +268,8 @@ int CustomLabel::fill_figure_with_seed(unsigned long delayMs, unsigned long &tim
             --x;
         } while (x >= 0 && canvas_image.pixelColor({x, seed.y()}) != line_color);
 
-        seed_search(canvas_image, stack, x + 1, x_prev, seed.y() - 1);
-        seed_search(canvas_image, stack, x + 1, x_prev, seed.y() + 1);
+        seed_search(canvas_image, stack, x + 1, xr, seed.y() - 1);
+        seed_search(canvas_image, stack, x + 1, xr, seed.y() + 1);
 
         if (delayMs > 0) {
             pxp = QPixmap::fromImage(canvas_image);
@@ -291,6 +288,6 @@ int CustomLabel::fill_figure_with_seed(unsigned long delayMs, unsigned long &tim
     }
 
     time = QDateTime::currentMSecsSinceEpoch() - time;
-    seed_set = false;
+    // seed_set = false;
     return 0;
 }

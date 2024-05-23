@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     set_input_validators();
 
     connect(ui->picture, &CustomLabel::mousePressed, this, &MainWindow::add_point_to_table);
+    connect(ui->picture, &CustomLabel::mouseMoved, this, &MainWindow::add_point_to_table);
 
     ui->NoDelayButton->setChecked(1);
     ui->SeedLabel->setText("Затравочная точка не установлена.");
@@ -116,7 +117,7 @@ void MainWindow::on_FillFigureButton_clicked()
     }
     else {
         ui->LabelCommunicator->setText(QString::asprintf("> Время работы алгоритма: %ld ms.", timeMs));
-        ui->SeedLabel->setText("Затравочная точка не установлена.");
+        // ui->SeedLabel->setText("Затравочная точка не установлена.");
     }
 }
 
@@ -124,7 +125,7 @@ void MainWindow::on_ClearButton_clicked()
 {
     ClearNeeded();
     ui->picture->clear_pixmap();
-    ui->SeedLabel->setText("Затравочная точка не установлена.");
+    // ui->SeedLabel->setText("Затравочная точка не установлена.");
     ui->TablePoints->setRowCount(0);
 }
 
@@ -189,7 +190,7 @@ int MainWindow::get_ellipse(Ellipse &ellipse)
 
 void MainWindow::add_point_to_table(const QPoint &new_point, Qt::MouseButton button)
 {
-    if (button == Qt::LeftButton) {
+    if (button == Qt::LeftButton || button == Qt::NoButton) {
         ui->TablePoints->setCurrentItem(nullptr);
         ui->TablePoints->insertRow(ui->TablePoints->rowCount());
         ui->TablePoints->setItem(ui->TablePoints->rowCount() - 1, 0,
@@ -204,7 +205,7 @@ void MainWindow::add_point_to_table(const QPoint &new_point, Qt::MouseButton but
             QString::asprintf("Координаты затравочной точки (%d, %d).", seed_point.x(), seed_point.y()));
     }
     else {
-        ui->SeedLabel->setText("Затравочная точка не установлена.");
+        // ui->SeedLabel->setText("Затравочная точка не установлена.");
     }
 }
 

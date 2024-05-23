@@ -765,7 +765,7 @@ background-color: white;
            </font>
           </property>
           <property name="text">
-           <string>Выполнить закраску</string>
+           <string>Выполнить заполнение</string>
           </property>
          </widget>
         </item>

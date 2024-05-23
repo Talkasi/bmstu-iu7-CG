@@ -8,7 +8,7 @@
 typedef struct
 {
     size_t n_points;
-    QPoint points[1000];
+    QPoint points[1000000];
 } Figure;
 
 typedef struct
@@ -29,6 +29,7 @@ class CustomLabel : public QLabel
     Q_OBJECT
 signals:
     void mousePressed(const QPoint &point, Qt::MouseButton button);
+    void mouseMoved(const QPoint &point, Qt::MouseButton button);
 
 public:
     CustomLabel(QWidget *parent = nullptr, Qt::WindowFlags fl = Qt::WindowFlags());
@@ -44,7 +45,9 @@ public:
     void clear_pixmap();
 
     void resizeEvent(QResizeEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
 
+    void onMouseMoved(const QPoint &point, Qt::MouseButton button);
     void onMousePressed(const QPoint &point, Qt::MouseButton button);
     void onLeftButtonPressed(const QPoint &point);
     void onRightButtonPressed(const QPoint &point);
@@ -73,7 +76,7 @@ private:
     QColor line_color = Qt::black;
     QColor bg_color = QColor(254, 254, 254);
 
-    Figures figures = {};
+    Figures figures = {1, {}};
 
     bool seed_set = false;
     int seed_point_r = 1;
