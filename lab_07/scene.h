@@ -14,7 +14,7 @@ signals:
     void mouseRightButtonPressed();
 
     void mouseLeftButtonHold();
-    void mouseRightBtnClickedWithShift();
+    void mouseRightButtonHoldWithShift();
 
 public:
     explicit Scene(QObject *parent = nullptr);

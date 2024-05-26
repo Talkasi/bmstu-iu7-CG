@@ -10,19 +10,23 @@ Scene::Scene(QObject *parent) : QGraphicsScene{parent}
 void Scene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     this->shift_pressed = QApplication::queryKeyboardModifiers() == Qt::ShiftModifier;
+
     if (mouseEvent->button() == Qt::LeftButton) {
         this->is_left_hold = true;
         this->mouse_pos = mouseEvent->scenePos();
-        emit posChanged();
-        emit mouseLeftBtnClicked();
+
+        emit mousePosChanged();
+        emit mouseLeftButtonPressed();
     }
     else if (mouseEvent->button() == Qt::RightButton) {
         this->mouse_pos = mouseEvent->scenePos();
-        emit posChanged();
+
+        emit mousePosChanged();
+
         if (shift_pressed)
-            emit mouseRightBtnClickedWithShift();
+            emit mouseRightButtonHoldWithShift();
         else
-            emit mouseRightBtnClicked();
+            emit mouseRightButtonPressed();
     }
 }
 
@@ -32,7 +36,7 @@ void Scene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
         if (this->mouse_pos != mouseEvent->scenePos()) {
             // std::cout << mouseEvent->scenePos().x() << " " << mouseEvent->scenePos().x() << std::endl;
             this->mouse_pos = mouseEvent->scenePos();
-            emit mouseLeftBtnHold();
+            emit mouseLeftButtonHold();
         }
     }
 }

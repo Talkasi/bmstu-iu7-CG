@@ -1,4 +1,5 @@
 #include "drawer.h"
+#include <QObject>
 
 Drawer::Drawer(QGraphicsView *view, QObject *parent)
 {
@@ -18,7 +19,50 @@ Drawer::Drawer(QGraphicsView *view, QObject *parent)
 
     clear();
 
-    // connect(_scene, &Scene::clicked, this, &Drawer::btn_line_color_change_clicked);
+    connect(_scene, &Scene::mouseLeftButtonPressed, this, &Drawer::onMouseLeftButtonPressed);
+    connect(_scene, &Scene::mouseRightButtonPressed, this, &Drawer::onMouseRightButtonPressed);
+
+    connect(_scene, &Scene::mouseLeftButtonHold, this, &Drawer::onMouseLeftButtonPressed);
+    connect(_scene, &Scene::mouseRightButtonHoldWithShift, this, &Drawer::onMouseLeftButtonPressed);
+}
+
+void Drawer::onMouseLeftButtonPressed()
+{
+    QPointF tmp = _scene->get_mouse_pos();
+    QPoint new_point = {qRound(tmp.x()), qRound(tmp.y())};
+
+    lines_points[n_lines_points] = new_point;
+    ++n_lines_points;
+
+    if (n_lines_points % 2) {
+        /* This was the first point of the line */
+    }
+    else {
+        /* This was the second point of the line */
+        draw_line(lines_points[n_lines_points - 2], new_point);
+    }
+}
+
+void Drawer::onMouseRightButtonPressed()
+{
+    QPointF tmp = _scene->get_mouse_pos();
+    QPoint new_point = {qRound(tmp.x()), qRound(tmp.y())};
+
+    if (rect_empty) {
+        rect.setBottomLeft(new_point);
+    }
+    else {
+        QPoint prev_point = rect.bottomLeft();
+        if (prev_point.x() > new_point.x()) {
+            rect.setTopRight(new_point);
+        }
+        else {
+            rect.setTopRight(prev_point);
+            rect.setBottomLeft(new_point);
+        }
+        draw_rect(rect);
+    }
+    rect_empty = !rect_empty;
 }
 
 void Drawer::maximize()
@@ -31,54 +75,49 @@ void Drawer::maximize()
 
     _pxp = QPixmap(_width, _height);
     _pxp.fill(Qt::transparent);
+
+    _rect_pxp = QPixmap(_width, _height);
+    _rect_pxp.fill(Qt::transparent);
 }
 
-void Drawer::draw_point(QPoint &p, QColor &color)
+void Drawer::draw_line(QLine &line)
 {
     QPainter painter(&_pxp);
-    QPen pen(color);
-
-    pen.setWidth(1);
-    painter.setPen(pen);
-
-    painter.drawLine(p.x(), p.y(), p.x(), p.y());
-
-    _scene->clear();
-    _scene->addPixmap(this->_pxp);
-}
-
-void Drawer::draw_line(QLine &line, QColor &color)
-{
-    QPainter painter(&_pxp);
-    QPen pen(color);
+    QPen pen(line_color);
 
     pen.setWidth(1);
     painter.setPen(pen);
 
     painter.drawLine(line);
 
-    _scene->clear();
-    _scene->addPixmap(this->_pxp);
+    render();
 }
 
-// void Drawer::draw_lines(QLine lines[], QColor &color)
-// {
-//     for (int i = 0; i < lines.size(); i++)
-//         draw_line(lines[i].start, lines[i].end, color);
-// }
-
-void Drawer::draw_rect(QRect &rect, QColor &color)
+void Drawer::draw_line(QPoint &p1, QPoint &p2)
 {
     QPainter painter(&_pxp);
-    QPen pen(color);
+    QPen pen(line_color);
+
+    pen.setWidth(1);
+    painter.setPen(pen);
+
+    painter.drawLine(p1, p2);
+
+    render();
+}
+
+void Drawer::draw_rect(QRect &rect)
+{
+    _rect_pxp.fill(Qt::transparent);
+    QPainter painter(&_rect_pxp);
+    QPen pen(rect_color);
 
     pen.setWidth(1);
     painter.setPen(pen);
 
     painter.drawRect(rect);
 
-    _scene->clear();
-    _scene->addPixmap(this->_pxp);
+    render();
 }
 
 QColor Drawer::get_pixel_color(const QPoint &pos) const
@@ -93,16 +132,19 @@ QColor Drawer::get_pixel_color(int x, int y) const
 
 void Drawer::clear()
 {
-    this->_pxp = QPixmap(_scene->width(), _scene->height());
-    // this->_pxp.fill(Qt::transparent);
-    this->_pxp.fill(Qt::white);
+    this->_pxp.fill(Qt::transparent);
+    this->_rect_pxp.fill(Qt::transparent);
 
     _scene->clear();
+
+    n_lines_points = 0;
+    rect_empty = true;
 }
 
 void Drawer::render()
 {
     _scene->clear();
+    _scene->addPixmap(this->_rect_pxp);
     _scene->addPixmap(this->_pxp);
 }
 
@@ -119,4 +161,34 @@ int Drawer::width()
 int Drawer::height()
 {
     return _height;
+}
+
+void Drawer::set_line_color(QColor &color)
+{
+    line_color = color;
+}
+
+void Drawer::set_rect_color(QColor &color)
+{
+    rect_color = color;
+}
+
+void Drawer::set_result_color(QColor &color)
+{
+    result_color = color;
+}
+
+QColor Drawer::get_line_color()
+{
+    return line_color;
+}
+
+QColor Drawer::get_rect_color()
+{
+    return rect_color;
+}
+
+QColor Drawer::get_result_color()
+{
+    return result_color;
 }

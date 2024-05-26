@@ -43,9 +43,5 @@ private slots:
 private:
     Ui::MainWindow *ui;
     Drawer *drawer;
-
-    QColor line_color = Qt::blue;
-    QColor rect_color = Qt::black;
-    QColor result_color = Qt::red;
 };
 #endif // MAINWINDOW_H

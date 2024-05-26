@@ -11,9 +11,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     drawer = new Drawer(ui->graphicsView, this);
 
-    set_preview_widget_color(ui->line_color_preview, line_color);
-    set_preview_widget_color(ui->rect_color_preview, rect_color);
-    set_preview_widget_color(ui->result_color_preview, result_color);
+    set_preview_widget_color(ui->line_color_preview, drawer->get_line_color());
+    set_preview_widget_color(ui->rect_color_preview, drawer->get_rect_color());
+    set_preview_widget_color(ui->result_color_preview, drawer->get_result_color());
 }
 
 MainWindow::~MainWindow()
@@ -131,7 +131,7 @@ void MainWindow::on_btn_add_line_clicked()
     QLine new_line;
     QString error_msg;
     if (get_line(new_line, error_msg)) {
-        drawer->draw_line(new_line, line_color);
+        drawer->draw_line(new_line);
     }
     else {
         QMessageBox::critical(NULL, "Ошибка!", error_msg);
@@ -143,7 +143,7 @@ void MainWindow::on_btn_add_rect_clicked()
     QRect new_rect;
     QString error_msg;
     if (get_rect(new_rect, error_msg)) {
-        drawer->draw_rect(new_rect, rect_color);
+        drawer->draw_rect(new_rect);
     }
     else {
         QMessageBox::critical(NULL, "Ошибка!", error_msg);
@@ -169,18 +169,24 @@ void MainWindow::set_preview_widget_color(QWidget *widget, QColor color)
 
 void MainWindow::on_btn_line_color_change_clicked()
 {
+    QColor line_color;
     line_color = QColor(QColorDialog::getColor(line_color).rgb());
     set_preview_widget_color(ui->line_color_preview, line_color);
+    drawer->set_line_color(line_color);
 }
 
 void MainWindow::on_btn_rect_color_change_clicked()
 {
+    QColor rect_color;
     rect_color = QColor(QColorDialog::getColor(rect_color).rgb());
     set_preview_widget_color(ui->rect_color_preview, rect_color);
+    drawer->set_rect_color(rect_color);
 }
 
 void MainWindow::on_btn_result_color_change_clicked()
 {
+    QColor result_color;
     result_color = QColor(QColorDialog::getColor(result_color).rgb());
     set_preview_widget_color(ui->result_color_preview, result_color);
+    drawer->set_result_color(result_color);
 }
