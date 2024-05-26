@@ -21,7 +21,7 @@ public:
     void draw_point(QPoint &p);
     void draw_line(QLine &line);
     void draw_line(QPoint &p1, QPoint &p2);
-    void draw_lines(QPoint lines_points[], int n_points, QColor &color);
+    void draw_lines(QPixmap &pixmap, QPoint lines_points[], int n_points, QColor &color);
     void draw_rect(myRect &rect);
 
     QColor get_pixel_color(const QPoint &position) const;

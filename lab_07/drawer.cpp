@@ -104,9 +104,9 @@ void Drawer::draw_line(QLine &line)
     render();
 }
 
-void Drawer::draw_lines(QPoint lines_points[], int n_points, QColor &color)
+void Drawer::draw_lines(QPixmap &pixmap, QPoint lines_points[], int n_points, QColor &color)
 {
-    QPainter painter(&_pxp);
+    QPainter painter(&pixmap);
     QPen pen(color);
 
     pen.setWidth(1);
@@ -170,8 +170,8 @@ void Drawer::clear()
 void Drawer::render()
 {
     _scene->clear();
-    _scene->addPixmap(this->_rect_pxp);
     _scene->addPixmap(this->_pxp);
+    _scene->addPixmap(this->_rect_pxp);
 }
 
 Scene *Drawer::get_scene()
@@ -192,20 +192,27 @@ int Drawer::height()
 void Drawer::set_line_color(QColor &color)
 {
     line_color = color;
+
+    _pxp.fill(Qt::transparent);
+    draw_lines(_pxp, lines_points, n_lines_points, line_color);
 }
 
 void Drawer::set_rect_color(QColor &color)
 {
     rect_color = color;
 
+    _rect_pxp.fill(Qt::transparent);
     draw_rect(rect);
+    draw_lines(_rect_pxp, res_lines_points, n_res_lines_points, result_color);
 }
 
 void Drawer::set_result_color(QColor &color)
 {
     result_color = color;
 
-    draw_lines(res_lines_points, n_res_lines_points, color);
+    _rect_pxp.fill(Qt::transparent);
+    draw_rect(rect);
+    draw_lines(_rect_pxp, res_lines_points, n_res_lines_points, result_color);
 }
 
 QColor Drawer::get_line_color()
@@ -251,7 +258,7 @@ void Drawer::show_visible()
         }
     }
 
-    draw_lines(res_lines_points, n_res_lines_points, result_color);
+    draw_lines(_rect_pxp, res_lines_points, n_res_lines_points, result_color);
 }
 
 enum visibility
