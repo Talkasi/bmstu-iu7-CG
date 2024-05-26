@@ -17,14 +17,18 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
-        view.cpp
-        view.h
+        drawer.cpp
+        drawer.h
+        scene.cpp
+        scene.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(lab_07
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        scene.h scene.cpp
+        algorithms.h algorithms.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET lab_07 APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

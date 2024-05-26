@@ -9,14 +9,26 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
     set_input_validators();
 
-    set_preview_widget_color(ui->line_color_preview, ui->graphicsView->get_line_color());
-    set_preview_widget_color(ui->rect_color_preview, ui->graphicsView->get_rect_color());
-    set_preview_widget_color(ui->result_color_preview, ui->graphicsView->get_result_color());
+    drawer = new Drawer(ui->graphicsView, this);
+
+    set_preview_widget_color(ui->line_color_preview, line_color);
+    set_preview_widget_color(ui->rect_color_preview, rect_color);
+    set_preview_widget_color(ui->result_color_preview, result_color);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::resizeEvent(QResizeEvent *e)
+{
+    drawer->maximize();
+}
+
+void MainWindow::showEvent(QShowEvent *e)
+{
+    drawer->maximize();
 }
 
 void MainWindow::set_input_validators()
@@ -48,7 +60,7 @@ int get_int_from_input(int &number, QLineEdit *input)
     return 0;
 }
 
-int MainWindow::get_line(QLine &line, QString error_msg)
+int MainWindow::get_line(QLine &line, QString &error_msg)
 {
     int x_s;
     int y_s;
@@ -81,7 +93,7 @@ int MainWindow::get_line(QLine &line, QString error_msg)
     return 1;
 }
 
-int MainWindow::get_rect(QRect &rect, QString error_msg)
+int MainWindow::get_rect(QRect &rect, QString &error_msg)
 {
     int x_s;
     int y_s;
@@ -119,7 +131,7 @@ void MainWindow::on_btn_add_line_clicked()
     QLine new_line;
     QString error_msg;
     if (get_line(new_line, error_msg)) {
-        ui->graphicsView->draw_line(new_line);
+        drawer->draw_line(new_line, line_color);
     }
     else {
         QMessageBox::critical(NULL, "Ошибка!", error_msg);
@@ -131,7 +143,7 @@ void MainWindow::on_btn_add_rect_clicked()
     QRect new_rect;
     QString error_msg;
     if (get_rect(new_rect, error_msg)) {
-        ui->graphicsView->draw_rect(new_rect);
+        drawer->draw_rect(new_rect, rect_color);
     }
     else {
         QMessageBox::critical(NULL, "Ошибка!", error_msg);
@@ -144,7 +156,7 @@ void MainWindow::on_btn_cut_clicked()
 
 void MainWindow::on_btn_clear_clicked()
 {
-    ui->graphicsView->clear_pixmap();
+    drawer->clear();
 }
 
 void MainWindow::set_preview_widget_color(QWidget *widget, QColor color)
@@ -157,24 +169,18 @@ void MainWindow::set_preview_widget_color(QWidget *widget, QColor color)
 
 void MainWindow::on_btn_line_color_change_clicked()
 {
-    QColor line_color;
     line_color = QColor(QColorDialog::getColor(line_color).rgb());
     set_preview_widget_color(ui->line_color_preview, line_color);
-    ui->graphicsView->set_line_color(line_color);
 }
 
 void MainWindow::on_btn_rect_color_change_clicked()
 {
-    QColor rect_color;
     rect_color = QColor(QColorDialog::getColor(rect_color).rgb());
     set_preview_widget_color(ui->rect_color_preview, rect_color);
-    ui->graphicsView->set_rect_color(rect_color);
 }
 
 void MainWindow::on_btn_result_color_change_clicked()
 {
-    QColor result_color;
     result_color = QColor(QColorDialog::getColor(result_color).rgb());
     set_preview_widget_color(ui->result_color_preview, result_color);
-    ui->graphicsView->set_result_color(result_color);
 }

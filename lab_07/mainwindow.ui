@@ -357,7 +357,7 @@ background-color: white;
            </size>
           </property>
           <property name="text">
-           <string>723</string>
+           <string>200</string>
           </property>
          </widget>
         </item>
@@ -376,7 +376,7 @@ background-color: white;
            </size>
           </property>
           <property name="text">
-           <string>488</string>
+           <string>200</string>
           </property>
          </widget>
         </item>
@@ -700,7 +700,7 @@ background-color: white;
      </layout>
     </item>
     <item>
-     <widget class="View" name="graphicsView">
+     <widget class="QGraphicsView" name="graphicsView">
       <property name="styleSheet">
        <string notr="true">background-color: white;</string>
       </property>
@@ -720,13 +720,6 @@ background-color: white;
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>View</class>
-   <extends>QGraphicsView</extends>
-   <header>view.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
