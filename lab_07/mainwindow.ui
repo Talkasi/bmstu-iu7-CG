@@ -50,6 +50,19 @@ background-color: white;
     <item>
      <layout class="QVBoxLayout" name="InputLayout">
       <item>
+       <spacer name="verticalSpacer_8">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <layout class="QVBoxLayout" name="LineColorBox">
         <item>
          <layout class="QGridLayout" name="gridLayout_2">

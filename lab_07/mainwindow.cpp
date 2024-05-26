@@ -93,7 +93,7 @@ int MainWindow::get_line(QLine &line, QString &error_msg)
     return 1;
 }
 
-int MainWindow::get_rect(QRect &rect, QString &error_msg)
+int MainWindow::get_rect(myRect &rect, QString &error_msg)
 {
     int x_s;
     int y_s;
@@ -121,7 +121,10 @@ int MainWindow::get_rect(QRect &rect, QString &error_msg)
         return 0;
     }
 
-    rect.setCoords(x_s, y_s, x_e, y_e);
+    rect.x_min = std::min(x_s, x_e);
+    rect.y_min = std::min(y_s, y_e);
+    rect.x_max = std::max(x_s, x_e);
+    rect.y_max = std::max(y_s, y_e);
 
     return 1;
 }
@@ -131,6 +134,7 @@ void MainWindow::on_btn_add_line_clicked()
     QLine new_line;
     QString error_msg;
     if (get_line(new_line, error_msg)) {
+        drawer->save_line(new_line);
         drawer->draw_line(new_line);
     }
     else {
@@ -140,9 +144,10 @@ void MainWindow::on_btn_add_line_clicked()
 
 void MainWindow::on_btn_add_rect_clicked()
 {
-    QRect new_rect;
+    myRect new_rect;
     QString error_msg;
     if (get_rect(new_rect, error_msg)) {
+        drawer->save_rect(new_rect);
         drawer->draw_rect(new_rect);
     }
     else {
@@ -152,6 +157,7 @@ void MainWindow::on_btn_add_rect_clicked()
 
 void MainWindow::on_btn_cut_clicked()
 {
+    drawer->show_visible();
 }
 
 void MainWindow::on_btn_clear_clicked()

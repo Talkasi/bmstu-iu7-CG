@@ -34,7 +34,6 @@ void Scene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     if (this->is_left_hold) {
         if (this->mouse_pos != mouseEvent->scenePos()) {
-            // std::cout << mouseEvent->scenePos().x() << " " << mouseEvent->scenePos().x() << std::endl;
             this->mouse_pos = mouseEvent->scenePos();
             emit mouseLeftButtonHold();
         }

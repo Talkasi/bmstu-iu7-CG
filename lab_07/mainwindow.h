@@ -24,7 +24,7 @@ public slots:
     void set_preview_widget_color(QWidget *widget, QColor color);
 
     int get_line(QLine &line, QString &error_msg);
-    int get_rect(QRect &rect, QString &error_msg);
+    int get_rect(myRect &rect, QString &error_msg);
 
 private slots:
     void on_btn_add_line_clicked();
