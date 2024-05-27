@@ -1,7 +1,7 @@
 #include "drawer.h"
 #include <QObject>
 
-int cohen_sutherland_algorithm(QPoint &p1, QPoint &p2, myRect &r);
+int cohen_sutherland_algorithm(QPointF &p1, QPointF &p2, myRect &r);
 
 Drawer::Drawer(QGraphicsView *view, QObject *parent)
 {
@@ -30,8 +30,7 @@ Drawer::Drawer(QGraphicsView *view, QObject *parent)
 
 void Drawer::onMouseLeftButtonPressed()
 {
-    QPointF tmp = _scene->get_mouse_pos();
-    QPoint new_point = {qRound(tmp.x()), qRound(tmp.y())};
+    QPointF new_point = _scene->get_mouse_pos();
 
     lines_points[n_lines_points] = new_point;
     ++n_lines_points;
@@ -91,7 +90,7 @@ void Drawer::maximize()
     _rect_pxp.fill(Qt::transparent);
 }
 
-void Drawer::draw_line(QLine &line)
+void Drawer::draw_line(QLineF &line)
 {
     QPainter painter(&_pxp);
     QPen pen(line_color);
@@ -104,7 +103,7 @@ void Drawer::draw_line(QLine &line)
     render();
 }
 
-void Drawer::draw_lines(QPixmap &pixmap, QPoint lines_points[], int n_points, QColor &color)
+void Drawer::draw_lines(QPixmap &pixmap, QPointF lines_points[], int n_points, QColor &color)
 {
     QPainter painter(&pixmap);
     QPen pen(color);
@@ -118,7 +117,7 @@ void Drawer::draw_lines(QPixmap &pixmap, QPoint lines_points[], int n_points, QC
     render();
 }
 
-void Drawer::draw_line(QPoint &p1, QPoint &p2)
+void Drawer::draw_line(QPointF &p1, QPointF &p2)
 {
     QPainter painter(&_pxp);
     QPen pen(line_color);
@@ -140,8 +139,10 @@ void Drawer::draw_rect(myRect &r)
     pen.setWidth(1);
     painter.setPen(pen);
 
-    QRect qr = QRect(QPoint(r.x_min, r.y_min), QPoint(r.x_max, r.y_max));
-    painter.drawRect(qr);
+    painter.drawLine(r.x_min, r.y_min, r.x_min, r.y_max);
+    painter.drawLine(r.x_min, r.y_min, r.x_max, r.y_min);
+    painter.drawLine(r.x_min, r.y_max, r.x_max, r.y_max);
+    painter.drawLine(r.x_max, r.y_min, r.x_max, r.y_max);
 
     render();
 }
@@ -230,7 +231,7 @@ QColor Drawer::get_result_color()
     return result_color;
 }
 
-void Drawer::save_line(QLine &line)
+void Drawer::save_line(QLineF &line)
 {
     lines_points[n_lines_points] = line.p1();
     lines_points[n_lines_points + 1] = line.p2();
@@ -248,8 +249,8 @@ void Drawer::show_visible()
     n_res_lines_points = 0;
 
     for (int i = 0; i + 1 < n_lines_points; i += 2) {
-        QPoint p1 = lines_points[i];
-        QPoint p2 = lines_points[i + 1];
+        QPointF p1 = lines_points[i];
+        QPointF p2 = lines_points[i + 1];
 
         if (cohen_sutherland_algorithm(p1, p2, rect)) {
             res_lines_points[n_res_lines_points] = p1;
@@ -283,7 +284,7 @@ enum
     N_RECT_SIDES
 };
 
-void init_t_arr(bool t[N_RECT_SIDES], myRect r, QPoint p)
+void init_t_arr(bool t[N_RECT_SIDES], myRect r, QPointF p)
 {
     t[LEFT] = p.x() < r.x_min;
     t[RIGHT] = p.x() > r.x_max;
@@ -316,18 +317,18 @@ visibility get_visibility(bool t1[N_RECT_SIDES], bool t2[N_RECT_SIDES])
     return res;
 }
 
-int cohen_sutherland_algorithm(QPoint &p1, QPoint &p2, myRect &r)
+int cohen_sutherland_algorithm(QPointF &p1, QPointF &p2, myRect &r)
 {
     int fl = 0;
     double m = 0;
 
-    int window[N_RECT_SIDES] = {r.x_min, r.x_max, r.y_min, r.y_max};
+    double window[N_RECT_SIDES] = {r.x_min, r.x_max, r.y_min, r.y_max};
 
     if (p1.x() == p2.x()) {
         fl = VERTICAL;
     }
     else {
-        m = (double)(p2.y() - p1.y()) / (double)(p2.x() - p1.x());
+        m = (p2.y() - p1.y()) / (p2.x() - p1.x());
         if (fabs(m) < 1e-8)
             fl = HORIZONTAL;
     }
@@ -352,16 +353,14 @@ int cohen_sutherland_algorithm(QPoint &p1, QPoint &p2, myRect &r)
         if (t1[i] == 0)
             std::swap(p1, p2);
 
-        if (fl == VERTICAL) {
-            p1.setY(window[i]);
+        if (fl != VERTICAL && i < 2) {
+            p1.setY(m * (window[i] - p1.x()) + p1.y());
+            p1.setX(window[i]);
         }
         else {
-            if (i < 2) {
-                p1.setY(qRound(m * (window[i] - p1.x()) + p1.y()));
-                p1.setX(window[i]);
-            }
-            else {
-                p1.setX(qRound((window[i] - p1.y()) / m + p1.x()));
+            if (fl != HORIZONTAL) {
+                if (fl != VERTICAL)
+                    p1.setX((window[i] - p1.y()) / m + p1.x());
                 p1.setY(window[i]);
             }
         }

@@ -60,7 +60,7 @@ int get_int_from_input(int &number, QLineEdit *input)
     return 0;
 }
 
-int MainWindow::get_line(QLine &line, QString &error_msg)
+int MainWindow::get_line(QLineF &line, QString &error_msg)
 {
     int x_s;
     int y_s;
@@ -88,7 +88,7 @@ int MainWindow::get_line(QLine &line, QString &error_msg)
         return 0;
     }
 
-    line.setPoints({x_s, y_s}, {x_e, y_e});
+    line.setPoints({(double)x_s, (double)y_s}, {(double)x_e, (double)y_e});
 
     return 1;
 }
@@ -121,17 +121,17 @@ int MainWindow::get_rect(myRect &rect, QString &error_msg)
         return 0;
     }
 
-    rect.x_min = std::min(x_s, x_e);
-    rect.y_min = std::min(y_s, y_e);
-    rect.x_max = std::max(x_s, x_e);
-    rect.y_max = std::max(y_s, y_e);
+    rect.x_min = (double)std::min(x_s, x_e);
+    rect.y_min = (double)std::min(y_s, y_e);
+    rect.x_max = (double)std::max(x_s, x_e);
+    rect.y_max = (double)std::max(y_s, y_e);
 
     return 1;
 }
 
 void MainWindow::on_btn_add_line_clicked()
 {
-    QLine new_line;
+    QLineF new_line;
     QString error_msg;
     if (get_line(new_line, error_msg)) {
         drawer->save_line(new_line);
